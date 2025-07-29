@@ -100,6 +100,62 @@
         </button>
       </form>
     </div>
+
+    <!-- 訂閱項目列表 -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">我的訂閱服務</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <template x-for="subscription in subscriptions" :key="subscription.id">
+          <div class="bg-white rounded-lg shadow-md p-6 border-l-4" :class="getCategoryColor(subscription.category)">
+            <!-- 服務名稱和分類 -->
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-lg font-bold text-gray-800" x-text="subscription.name"></h3>
+              <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600" x-text="getCategoryName(subscription.category)"></span>
+            </div>
+            
+            <!-- 價格資訊 -->
+            <div class="mb-4">
+              <div class="text-2xl font-bold text-green-600 mb-1">
+                NT$ <span x-text="subscription.price"></span>
+              </div>
+              <div class="text-sm text-gray-500" x-text="getCycleName(subscription.cycle)"></div>
+              <div class="text-sm text-gray-600">
+                月費用：NT$ <span x-text="getMonthlyPrice(subscription)"></span>
+              </div>
+            </div>
+            
+            <!-- 日期資訊 -->
+            <div class="mb-4 text-sm text-gray-600">
+              <div>開始日期：<span x-text="formatDate(subscription.startDate)"></span></div>
+              <div>下次付款：<span x-text="getNextPaymentDate(subscription)"></span></div>
+            </div>
+            
+            <!-- 操作按鈕 -->
+            <div class="flex space-x-2">
+              <button 
+                @click="editSubscription(subscription.id)"
+                class="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-md hover:bg-gray-200 text-sm font-medium"
+              >
+                編輯
+              </button>
+              <button 
+                @click="deleteSubscription(subscription.id)"
+                class="flex-1 bg-red-100 text-red-700 py-2 px-3 rounded-md hover:bg-red-200 text-sm font-medium"
+              >
+                刪除
+              </button>
+            </div>
+          </div>
+        </template>
+      </div>
+      
+      <!-- 空狀態提示 -->
+      <div x-show="subscriptions.length === 0" class="text-center py-12">
+        <div class="text-gray-400 text-6xl mb-4">📱</div>
+        <h3 class="text-xl font-medium text-gray-600 mb-2">還沒有訂閱服務</h3>
+        <p class="text-gray-500">新增你的第一個訂閱服務開始追蹤支出吧！</p>
+      </div>
+    </div>
   </div>
 </body>
 </html>
