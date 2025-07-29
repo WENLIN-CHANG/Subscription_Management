@@ -1,3 +1,195 @@
 import Alpine from 'alpinejs'
+
+// 訂閱管理主要組件
+Alpine.data('subscriptionManager', () => ({
+  // 數據狀態
+  subscriptions: [],
+  monthlyTotal: 0,
+  newSubscription: {
+    name: '',
+    price: '',
+    cycle: 'monthly',
+    category: '',
+    startDate: ''
+  },
+
+  // 初始化
+  init() {
+    this.loadFromStorage()
+    this.calculateMonthlyTotal()
+  },
+
+  // 新增訂閱
+  addSubscription() {
+    if (this.validateForm()) {
+      const subscription = {
+        id: Date.now(),
+        name: this.newSubscription.name,
+        price: parseFloat(this.newSubscription.price),
+        cycle: this.newSubscription.cycle,
+        category: this.newSubscription.category,
+        startDate: this.newSubscription.startDate
+      }
+      
+      this.subscriptions.push(subscription)
+      this.resetForm()
+      this.calculateMonthlyTotal()
+      this.saveToStorage()
+    }
+  },
+
+  // 刪除訂閱
+  deleteSubscription(id) {
+    if (confirm('確定要刪除這個訂閱嗎？')) {
+      this.subscriptions = this.subscriptions.filter(sub => sub.id !== id)
+      this.calculateMonthlyTotal()
+      this.saveToStorage()
+    }
+  },
+
+  // 編輯訂閱（暫時用 alert 提示）
+  editSubscription(id) {
+    alert('編輯功能稍後實作')
+  },
+
+  // 表單驗證
+  validateForm() {
+    if (!this.newSubscription.name.trim()) {
+      alert('請輸入服務名稱')
+      return false
+    }
+    if (!this.newSubscription.price || this.newSubscription.price <= 0) {
+      alert('請輸入有效的價格')
+      return false
+    }
+    if (!this.newSubscription.category) {
+      alert('請選擇服務分類')
+      return false
+    }
+    if (!this.newSubscription.startDate) {
+      alert('請選擇開始日期')
+      return false
+    }
+    return true
+  },
+
+  // 重置表單
+  resetForm() {
+    this.newSubscription = {
+      name: '',
+      price: '',
+      cycle: 'monthly',
+      category: '',
+      startDate: ''
+    }
+  },
+
+  // 計算月支出總額
+  calculateMonthlyTotal() {
+    this.monthlyTotal = this.subscriptions.reduce((total, subscription) => {
+      return total + this.getMonthlyPrice(subscription)
+    }, 0)
+  },
+
+  // 獲取月費用
+  getMonthlyPrice(subscription) {
+    const price = parseFloat(subscription.price)
+    switch (subscription.cycle) {
+      case 'monthly':
+        return price
+      case 'quarterly':
+        return price / 3
+      case 'yearly':
+        return price / 12
+      default:
+        return price
+    }
+  },
+
+  // 獲取週期名稱
+  getCycleName(cycle) {
+    const names = {
+      monthly: '每月',
+      quarterly: '每季',
+      yearly: '每年'
+    }
+    return names[cycle] || cycle
+  },
+
+  // 獲取分類名稱
+  getCategoryName(category) {
+    const names = {
+      entertainment: '娛樂影音',
+      productivity: '生產力工具',
+      storage: '雲端存儲',
+      fitness: '健身運動',
+      education: '教育學習',
+      news: '新聞資訊',
+      other: '其他'
+    }
+    return names[category] || category
+  },
+
+  // 獲取分類顏色
+  getCategoryColor(category) {
+    const colors = {
+      entertainment: 'border-red-400',
+      productivity: 'border-blue-400',
+      storage: 'border-green-400',
+      fitness: 'border-orange-400',
+      education: 'border-purple-400',
+      news: 'border-yellow-400',
+      other: 'border-gray-400'
+    }
+    return colors[category] || 'border-gray-400'
+  },
+
+  // 格式化日期
+  formatDate(dateString) {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('zh-TW')
+  },
+
+  // 獲取下次付款日期
+  getNextPaymentDate(subscription) {
+    const startDate = new Date(subscription.startDate)
+    const today = new Date()
+    
+    let nextDate = new Date(startDate)
+    
+    switch (subscription.cycle) {
+      case 'monthly':
+        while (nextDate <= today) {
+          nextDate.setMonth(nextDate.getMonth() + 1)
+        }
+        break
+      case 'quarterly':
+        while (nextDate <= today) {
+          nextDate.setMonth(nextDate.getMonth() + 3)
+        }
+        break
+      case 'yearly':
+        while (nextDate <= today) {
+          nextDate.setFullYear(nextDate.getFullYear() + 1)
+        }
+        break
+    }
+    
+    return nextDate.toLocaleDateString('zh-TW')
+  },
+
+  // 本地存儲
+  saveToStorage() {
+    localStorage.setItem('subscriptions', JSON.stringify(this.subscriptions))
+  },
+
+  loadFromStorage() {
+    const stored = localStorage.getItem('subscriptions')
+    if (stored) {
+      this.subscriptions = JSON.parse(stored)
+    }
+  }
+}))
+
 window.Alpine = Alpine
 Alpine.start()
