@@ -1,13 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Subscription_Management</title>
+  <title>訂閱支出追蹤器</title>
   <link rel="stylesheet" href="style.css">
   <script type="module" src="app.js"></script>
 </head>
-<body>
-  <h1>Hello World</h1>
+<body class="bg-gray-50 min-h-screen">
+  <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- 月總支出顯示區域 -->
+    <div class="text-center mb-12">
+      <h1 class="text-gray-600 text-xl mb-4">這個月你在訂閱服務上花了</h1>
+      <div class="text-8xl font-bold text-red-500 mb-4" x-text="`$${monthlyTotal}`">$0</div>
+      <p class="text-gray-500 text-lg">年度預估支出：<span class="text-red-400 font-semibold" x-text="`$${monthlyTotal * 12}`">$0</span></p>
+    </div>
+  </div>
 </body>
 </html>
