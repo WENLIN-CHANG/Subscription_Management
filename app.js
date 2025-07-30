@@ -12,6 +12,8 @@ Alpine.data('subscriptionManager', () => ({
     category: '',
     startDate: ''
   },
+  editingSubscription: null,
+  isEditing: false,
 
   // 初始化
   init() {
@@ -47,9 +49,51 @@ Alpine.data('subscriptionManager', () => ({
     }
   },
 
-  // 編輯訂閱（暫時用 alert 提示）
+  // 開始編輯訂閱
   editSubscription(id) {
-    alert('編輯功能稍後實作')
+    const subscription = this.subscriptions.find(sub => sub.id === id)
+    if (subscription) {
+      this.editingSubscription = { ...subscription }
+      this.newSubscription = {
+        name: subscription.name,
+        price: subscription.price.toString(),
+        cycle: subscription.cycle,
+        category: subscription.category,
+        startDate: subscription.startDate
+      }
+      this.isEditing = true
+      // 滾動到表單位置
+      setTimeout(() => {
+        document.querySelector('form').scrollIntoView({ behavior: 'smooth' })
+      }, 100)
+    }
+  },
+
+  // 取消編輯
+  cancelEdit() {
+    this.isEditing = false
+    this.editingSubscription = null
+    this.resetForm()
+  },
+
+  // 更新訂閱
+  updateSubscription() {
+    if (this.validateForm()) {
+      const index = this.subscriptions.findIndex(sub => sub.id === this.editingSubscription.id)
+      if (index !== -1) {
+        this.subscriptions[index] = {
+          ...this.editingSubscription,
+          name: this.newSubscription.name,
+          price: parseFloat(this.newSubscription.price),
+          cycle: this.newSubscription.cycle,
+          category: this.newSubscription.category,
+          startDate: this.newSubscription.startDate
+        }
+        this.cancelEdit()
+        this.calculateMonthlyTotal()
+        this.saveToStorage()
+      }
+    }
   },
 
   // 表單驗證
