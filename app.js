@@ -7,6 +7,7 @@ import { budgetManager } from './scripts/budgetManager.js'
 import { statisticsManager } from './scripts/statisticsManager.js'
 import { stateManager } from './scripts/stateManager.js'
 import { migrationManager } from './scripts/migrationManager.js'
+import { authManager } from './scripts/authManager.js'
 
 // 訂閱管理主要組件
 Alpine.data('subscriptionManager', () => ({
@@ -25,6 +26,10 @@ Alpine.data('subscriptionManager', () => ({
   monthlyBudget: 0,
   showBudgetSetting: false,
   tempBudget: '',
+  
+  // 認證狀態
+  isLoggedIn: false,
+  currentUser: null,
 
   // 初始化
   async init() {
@@ -33,6 +38,10 @@ Alpine.data('subscriptionManager', () => ({
       if (!window.stateManager) {
         stateManager.init()
       }
+      
+      // 初始化認證狀態
+      this.isLoggedIn = await authManager.init()
+      this.currentUser = authManager.currentUser
       
       // 載入數據
       await stateManager.withLoading('init', async () => {
@@ -184,6 +193,19 @@ Alpine.data('subscriptionManager', () => ({
 
   getCategoryStats() {
     return statisticsManager.getCategoryStats(this.subscriptions)
+  },
+
+  // 認證相關方法
+  showLogin() {
+    authManager.showAuthDialog('login')
+  },
+
+  showRegister() {
+    authManager.showAuthDialog('register')
+  },
+
+  logout() {
+    authManager.logout()
   }
 }))
 
