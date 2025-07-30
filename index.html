@@ -8,15 +8,16 @@
   <script type="module" src="app.js"></script>
 </head>
 <body class="bg-base-200 min-h-screen">
-  <div class="container mx-auto px-4 py-8 max-w-4xl" x-data="subscriptionManager">
-    <!-- 頂部導航欄 -->
-    <div class="navbar bg-base-100 rounded-box shadow-lg mb-6">
-      <div class="flex-1">
-        <h1 class="text-xl font-bold">訂閱管理系統</h1>
+  <div x-data="subscriptionManager">
+    <!-- 固定頂部導航欄 -->
+    <div class="navbar bg-base-100 shadow-lg fixed top-0 left-0 right-0 z-40">
+      <div class="navbar-start">
+        <h1 class="text-xl font-bold ml-4">訂閱管理系統</h1>
       </div>
-      <div class="flex-none">
+      
+      <div class="navbar-end">
         <!-- 已登入狀態 -->
-        <div x-show="isLoggedIn" class="flex items-center space-x-4">
+        <div x-show="isLoggedIn" class="flex items-center space-x-4 mr-4">
           <div class="flex items-center space-x-2">
             <div class="avatar placeholder">
               <div class="bg-primary text-primary-content rounded-full w-8">
@@ -38,12 +39,15 @@
         </div>
         
         <!-- 未登入狀態 -->
-        <div x-show="!isLoggedIn" class="flex items-center space-x-2">
+        <div x-show="!isLoggedIn" class="flex items-center space-x-2 mr-4">
           <button @click="showLogin()" class="btn btn-ghost btn-sm">登入</button>
           <button @click="showRegister()" class="btn btn-primary btn-sm">註冊</button>
         </div>
       </div>
     </div>
+
+    <!-- 主要內容區域 -->
+    <div class="container mx-auto px-4 py-8 max-w-4xl mt-20">
 
     <!-- 月總支出顯示區域 -->
     <div class="hero bg-gradient-to-br from-primary/10 to-secondary/10 rounded-3xl mb-8 backdrop-blur-sm">
@@ -456,6 +460,7 @@
             </button>
           </div>
         </div>
+      </div>
       </div>
     </div>
   </div>
