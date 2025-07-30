@@ -59,7 +59,17 @@ export const apiClient = {
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({ detail: '請求失敗' }))
-        throw new Error(error.detail || '請求失敗')
+        
+        // 處理 FastAPI 驗證錯誤 (422)
+        if (response.status === 422 && error.detail && Array.isArray(error.detail)) {
+          const validationErrors = error.detail.map(err => {
+            const field = err.loc ? err.loc.join('.') : 'unknown'
+            return `${field}: ${err.msg}`
+          }).join(', ')
+          throw new Error(`資料驗證失敗: ${validationErrors}`)
+        }
+        
+        throw new Error(error.detail || error.message || '請求失敗')
       }
 
       // 處理無內容響應

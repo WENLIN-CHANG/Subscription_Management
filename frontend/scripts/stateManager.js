@@ -42,8 +42,21 @@ export const stateManager = {
     
     // 設置錯誤
     set(error, context = '') {
+      let message = error
+      
+      // 處理不同類型的錯誤
+      if (error instanceof Error) {
+        message = error.message
+      } else if (typeof error === 'object') {
+        message = error.message || error.detail || JSON.stringify(error)
+      } else if (typeof error === 'string') {
+        message = error
+      } else {
+        message = String(error)
+      }
+      
       this.current = {
-        message: error.message || error,
+        message,
         context,
         timestamp: new Date()
       }

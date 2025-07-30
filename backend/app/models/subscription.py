@@ -6,9 +6,8 @@ from . import Base
 
 class SubscriptionCycle(str, enum.Enum):
     MONTHLY = "monthly"
+    QUARTERLY = "quarterly"
     YEARLY = "yearly"
-    WEEKLY = "weekly"
-    DAILY = "daily"
 
 class SubscriptionCategory(str, enum.Enum):
     STREAMING = "streaming"
