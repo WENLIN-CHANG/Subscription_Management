@@ -406,10 +406,6 @@
               <!-- 價格資訊 -->
               <div class="mb-4">
                 <div class="space-y-2">
-                  <!-- 原始價格 -->
-                  <div x-show="subscription.currency && subscription.currency !== 'TWD'" class="text-lg text-base-content/70">
-                    <span x-text="formatOriginalCurrency(subscription.originalPrice, subscription.currency)"></span>
-                  </div>
                   <!-- 台幣價格 -->
                   <div class="text-3xl font-bold text-success" x-text="formatCurrency(subscription.price)">
                     NT$0
