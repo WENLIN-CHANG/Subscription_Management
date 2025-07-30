@@ -140,6 +140,39 @@
       </form>
     </div>
 
+    <!-- 分類統計圖表 -->
+    <div x-show="subscriptions.length > 0" class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">支出分類統計</h2>
+      <div class="space-y-4">
+        <template x-for="stat in getCategoryStats()" :key="stat.name">
+          <div class="flex items-center justify-between p-4 rounded-lg" :class="stat.color">
+            <div class="flex items-center space-x-4 flex-1">
+              <div class="min-w-0 flex-1">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="font-medium" x-text="stat.name"></span>
+                  <div class="text-right">
+                    <span class="font-semibold" x-text="formatCurrency(stat.amount)"></span>
+                    <span class="text-sm ml-2" x-text="`(${stat.percentage}%)`"></span>
+                  </div>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                  <div 
+                    class="h-3 rounded-full transition-all duration-500"
+                    :class="stat.progressColor"
+                    :style="`width: ${stat.percentage}%`"
+                  ></div>
+                </div>
+                <div class="flex justify-between text-sm mt-1">
+                  <span x-text="`${stat.count} 個服務`"></span>
+                  <span x-text="`平均 ${formatCurrency(stat.amount / stat.count)}`"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+
     <!-- 訂閱項目列表 -->
     <div class="mb-8">
       <h2 class="text-2xl font-bold text-gray-800 mb-6">我的訂閱服務</h2>

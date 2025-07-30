@@ -284,6 +284,67 @@ Alpine.data('subscriptionManager', () => ({
     return this.subscriptions.filter(sub => this.getDaysUntilPayment(sub) <= 7)
   },
 
+  // 獲取分類統計數據
+  getCategoryStats() {
+    const stats = {}
+    let total = 0
+    
+    this.subscriptions.forEach(subscription => {
+      const monthlyPrice = this.getMonthlyPrice(subscription)
+      const category = subscription.category
+      
+      if (!stats[category]) {
+        stats[category] = {
+          name: this.getCategoryName(category),
+          amount: 0,
+          count: 0,
+          color: this.getCategoryBgColor(category),
+          progressColor: this.getCategoryProgressColor(category),
+          originalCategory: category
+        }
+      }
+      
+      stats[category].amount += monthlyPrice
+      stats[category].count += 1
+      total += monthlyPrice
+    })
+    
+    // 計算百分比
+    Object.keys(stats).forEach(category => {
+      stats[category].percentage = total > 0 ? (stats[category].amount / total * 100).toFixed(1) : 0
+    })
+    
+    return Object.values(stats).sort((a, b) => b.amount - a.amount)
+  },
+
+  // 獲取分類背景顏色
+  getCategoryBgColor(category) {
+    const colors = {
+      entertainment: 'bg-red-100 text-red-800',
+      productivity: 'bg-blue-100 text-blue-800',
+      storage: 'bg-green-100 text-green-800',
+      fitness: 'bg-orange-100 text-orange-800',
+      education: 'bg-purple-100 text-purple-800',
+      news: 'bg-yellow-100 text-yellow-800',
+      other: 'bg-gray-100 text-gray-800'
+    }
+    return colors[category] || 'bg-gray-100 text-gray-800'
+  },
+
+  // 獲取分類進度條顏色
+  getCategoryProgressColor(category) {
+    const colors = {
+      entertainment: 'bg-red-400',
+      productivity: 'bg-blue-400',
+      storage: 'bg-green-400',
+      fitness: 'bg-orange-400',
+      education: 'bg-purple-400',
+      news: 'bg-yellow-400',
+      other: 'bg-gray-400'
+    }
+    return colors[category] || 'bg-gray-400'
+  },
+
   // 本地存儲
   saveToStorage() {
     localStorage.setItem('subscriptions', JSON.stringify(this.subscriptions))
