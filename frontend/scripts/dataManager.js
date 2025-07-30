@@ -30,7 +30,11 @@ export const dataManager = {
       try {
         // 從後端獲取數據
         const subscriptions = await apiClient.subscriptions.getAll()
-        return subscriptions || []
+        // 轉換後端格式到前端格式
+        return (subscriptions || []).map(sub => ({
+          ...sub,
+          startDate: sub.start_date // 將後端的 start_date 轉換為前端的 startDate
+        }))
       } catch (error) {
         console.error('從後端載入訂閱失敗:', error)
         // 備用方案：從本地存儲載入
