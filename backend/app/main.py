@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database.connection import create_tables
 from app.core.config import settings
+from app.api import auth
 
 # 創建 FastAPI 應用
 app = FastAPI(
@@ -37,3 +38,6 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+# 包含路由
+app.include_router(auth.router, prefix="/api")
