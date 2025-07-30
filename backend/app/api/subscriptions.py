@@ -30,10 +30,10 @@ async def create_subscription(
     exchange_service = ExchangeRateService()
     
     # 如果不是台幣，需要轉換價格
-    price_twd = subscription.price
+    price_twd = subscription.original_price  # 預設使用原始價格
     if subscription.currency.value != "TWD":
         price_twd = await exchange_service.convert_currency(
-            subscription.currency.value, "TWD", subscription.original_price
+            subscription.original_price, subscription.currency.value, "TWD"
         )
     
     db_subscription = Subscription(

@@ -5,7 +5,6 @@ from app.models.subscription import SubscriptionCycle, SubscriptionCategory, Cur
 
 class SubscriptionBase(BaseModel):
     name: str
-    price: float  # 台幣價格 (轉換後)
     original_price: float  # 原始價格
     currency: Currency  # 原始貨幣
     cycle: SubscriptionCycle
@@ -28,6 +27,7 @@ class SubscriptionUpdate(BaseModel):
 class SubscriptionResponse(SubscriptionBase):
     id: int
     user_id: int
+    price: float  # 台幣價格 (轉換後)
     is_active: bool
     created_at: datetime
     updated_at: Optional[datetime] = None

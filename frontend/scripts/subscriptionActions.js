@@ -9,8 +9,12 @@ export const subscriptionActions = {
       stateManager.error.set('請輸入服務名稱', '表單驗證')
       return false
     }
-    if (!newSubscription.price || newSubscription.price <= 0) {
+    if (!newSubscription.originalPrice || newSubscription.originalPrice <= 0) {
       stateManager.error.set('請輸入有效的價格', '表單驗證')
+      return false
+    }
+    if (!newSubscription.currency) {
+      stateManager.error.set('請選擇貨幣', '表單驗證')
       return false
     }
     if (!newSubscription.category) {
@@ -29,6 +33,8 @@ export const subscriptionActions = {
     context.newSubscription = {
       name: '',
       price: '',
+      originalPrice: '',
+      currency: 'TWD',
       cycle: 'monthly',
       category: '',
       startDate: ''
@@ -47,10 +53,11 @@ export const subscriptionActions = {
         if (dataManager.isLoggedIn()) {
           await dataManager.createSubscription({
             name: context.newSubscription.name,
-            price: context.newSubscription.price,
+            original_price: parseFloat(context.newSubscription.originalPrice),
+            currency: context.newSubscription.currency,
             cycle: context.newSubscription.cycle,
             category: context.newSubscription.category,
-            startDate: context.newSubscription.startDate
+            start_date: context.newSubscription.startDate
           })
           
           // 重新載入數據
@@ -60,7 +67,9 @@ export const subscriptionActions = {
           const subscription = {
             id: Date.now(),
             name: context.newSubscription.name,
-            price: parseFloat(context.newSubscription.price),
+            price: parseFloat(context.newSubscription.originalPrice), // 暫時用原始價格
+            originalPrice: parseFloat(context.newSubscription.originalPrice),
+            currency: context.newSubscription.currency,
             cycle: context.newSubscription.cycle,
             category: context.newSubscription.category,
             startDate: context.newSubscription.startDate
@@ -125,6 +134,8 @@ export const subscriptionActions = {
       context.newSubscription = {
         name: subscription.name,
         price: subscription.price.toString(),
+        originalPrice: subscription.originalPrice ? subscription.originalPrice.toString() : subscription.price.toString(),
+        currency: subscription.currency || 'TWD',
         cycle: subscription.cycle,
         category: subscription.category,
         startDate: subscription.startDate
@@ -155,10 +166,11 @@ export const subscriptionActions = {
         if (dataManager.isLoggedIn()) {
           await dataManager.updateSubscription(context.editingSubscription.id, {
             name: context.newSubscription.name,
-            price: context.newSubscription.price,
+            original_price: parseFloat(context.newSubscription.originalPrice),
+            currency: context.newSubscription.currency,
             cycle: context.newSubscription.cycle,
             category: context.newSubscription.category,
-            startDate: context.newSubscription.startDate
+            start_date: context.newSubscription.startDate
           })
           
           // 重新載入數據
@@ -170,7 +182,9 @@ export const subscriptionActions = {
             context.subscriptions[index] = {
               ...context.editingSubscription,
               name: context.newSubscription.name,
-              price: parseFloat(context.newSubscription.price),
+              price: parseFloat(context.newSubscription.originalPrice), // 暫時用原始價格
+              originalPrice: parseFloat(context.newSubscription.originalPrice),
+              currency: context.newSubscription.currency,
               cycle: context.newSubscription.cycle,
               category: context.newSubscription.category,
               startDate: context.newSubscription.startDate

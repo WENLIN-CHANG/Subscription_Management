@@ -33,7 +33,9 @@ export const dataManager = {
         // 轉換後端格式到前端格式
         return (subscriptions || []).map(sub => ({
           ...sub,
-          startDate: sub.start_date // 將後端的 start_date 轉換為前端的 startDate
+          startDate: sub.start_date, // 將後端的 start_date 轉換為前端的 startDate
+          originalPrice: sub.original_price, // 將後端的 original_price 轉換為前端的 originalPrice
+          currency: sub.currency || 'TWD' // 確保有預設貨幣
         }))
       } catch (error) {
         console.error('從後端載入訂閱失敗:', error)
@@ -55,10 +57,11 @@ export const dataManager = {
         // 轉換前端數據格式到後端格式
         const backendData = {
           name: subscriptionData.name,
-          price: parseFloat(subscriptionData.price),
+          original_price: parseFloat(subscriptionData.original_price),
+          currency: subscriptionData.currency,
           cycle: subscriptionData.cycle,
           category: subscriptionData.category || 'other',
-          start_date: new Date(subscriptionData.startDate).toISOString()
+          start_date: new Date(subscriptionData.start_date).toISOString()
         }
         return await apiClient.subscriptions.create(backendData)
       } catch (error) {
@@ -75,10 +78,11 @@ export const dataManager = {
       try {
         const backendData = {}
         if (updateData.name !== undefined) backendData.name = updateData.name
-        if (updateData.price !== undefined) backendData.price = parseFloat(updateData.price)
+        if (updateData.original_price !== undefined) backendData.original_price = parseFloat(updateData.original_price)
+        if (updateData.currency !== undefined) backendData.currency = updateData.currency
         if (updateData.cycle !== undefined) backendData.cycle = updateData.cycle
         if (updateData.category !== undefined) backendData.category = updateData.category
-        if (updateData.startDate !== undefined) backendData.start_date = new Date(updateData.startDate).toISOString()
+        if (updateData.start_date !== undefined) backendData.start_date = new Date(updateData.start_date).toISOString()
         if (updateData.is_active !== undefined) backendData.is_active = updateData.is_active
 
         return await apiClient.subscriptions.update(id, backendData)

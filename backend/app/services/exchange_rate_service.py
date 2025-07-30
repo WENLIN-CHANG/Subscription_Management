@@ -47,32 +47,43 @@ class ExchangeRateService:
     async def _fetch_rate_from_api(self, from_currency: str, to_currency: str) -> Optional[float]:
         """從API獲取匯率"""
         
-        # 使用免費的exchangerate.host作為備用（無需API key）
-        backup_url = f"https://api.exchangerate.host/convert?from={from_currency}&to={to_currency}&amount=1"
-        
         try:
-            # 優先使用exchangeratesapi.io（需要API key）
-            if self.api_key and self.api_key != "your_api_key_here":
-                url = f"{self.base_url}/latest?access_key={self.api_key}&base={from_currency}&symbols={to_currency}"
-                async with httpx.AsyncClient() as client:
-                    response = await client.get(url, timeout=10)
-                    if response.status_code == 200:
-                        data = response.json()
-                        if data.get("success") and to_currency in data.get("rates", {}):
-                            return data["rates"][to_currency]
-            
-            # 備用方案：使用免費的exchangerate.host
+            # 嘗試使用免費的exchangerate-api.com（無需註冊）
+            backup_url = f"https://api.exchangerate-api.com/v4/latest/{from_currency}"
             async with httpx.AsyncClient() as client:
                 response = await client.get(backup_url, timeout=10)
                 if response.status_code == 200:
                     data = response.json()
-                    if data.get("success"):
-                        return data.get("result")
+                    if "rates" in data and to_currency in data["rates"]:
+                        return data["rates"][to_currency]
                         
         except Exception as e:
             print(f"API請求失敗: {e}")
-            
-        return None
+        
+        # 如果API失敗，使用預設匯率
+        return self._get_fallback_rate(from_currency, to_currency)
+    
+    def _get_fallback_rate(self, from_currency: str, to_currency: str) -> Optional[float]:
+        """獲取預設匯率（備用方案）"""
+        # 預設匯率表（相對於USD）
+        default_rates = {
+            "USD": 1.0,
+            "TWD": 31.5,  # 1 USD = 31.5 TWD
+            "EUR": 0.92,  # 1 USD = 0.92 EUR
+            "JPY": 150.0, # 1 USD = 150 JPY
+            "GBP": 0.79,  # 1 USD = 0.79 GBP
+            "KRW": 1350.0, # 1 USD = 1350 KRW
+            "CNY": 7.3    # 1 USD = 7.3 CNY
+        }
+        
+        if from_currency not in default_rates or to_currency not in default_rates:
+            return None
+        
+        # 透過USD進行轉換
+        from_rate = default_rates[from_currency]
+        to_rate = default_rates[to_currency]
+        
+        return to_rate / from_rate
     
     def _is_cache_valid(self, cache_key: str) -> bool:
         """檢查緩存是否有效"""
