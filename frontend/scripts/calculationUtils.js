@@ -127,5 +127,28 @@ export const calculationUtils = {
   // 格式化數字（千分位分隔符）
   formatNumber(number) {
     return new Intl.NumberFormat('zh-TW').format(number)
+  },
+
+  // 格式化原始貨幣顯示
+  formatOriginalCurrency(amount, currency) {
+    if (!amount || !currency) return ''
+    
+    const currencySymbols = {
+      'USD': '$',
+      'EUR': '€',
+      'JPY': '¥',
+      'GBP': '£',
+      'KRW': '₩',
+      'CNY': '¥',
+      'TWD': 'NT$'
+    }
+    
+    const symbol = currencySymbols[currency] || currency
+    const formattedAmount = new Intl.NumberFormat('zh-TW', {
+      minimumFractionDigits: currency === 'JPY' || currency === 'KRW' ? 0 : 2,
+      maximumFractionDigits: currency === 'JPY' || currency === 'KRW' ? 0 : 2
+    }).format(amount)
+    
+    return `${symbol}${formattedAmount}`
   }
 }

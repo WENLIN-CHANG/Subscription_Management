@@ -16,7 +16,9 @@ Alpine.data('subscriptionManager', () => ({
   monthlyTotal: 0,
   newSubscription: {
     name: '',
-    price: '',
+    price: '',  // 這個會由後端計算 (台幣)
+    originalPrice: '',  // 原始價格
+    currency: 'TWD',  // 預設台幣
     cycle: 'monthly',
     category: '',
     startDate: ''
@@ -122,6 +124,10 @@ Alpine.data('subscriptionManager', () => ({
 
   formatNumber(number) {
     return calculationUtils.formatNumber(number)
+  },
+
+  formatOriginalCurrency(amount, currency) {
+    return calculationUtils.formatOriginalCurrency(amount, currency)
   },
 
   // UI 工具方法

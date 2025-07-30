@@ -5,6 +5,7 @@ from app.database.connection import get_db
 from app.models import User, Subscription
 from app.schemas.subscription import SubscriptionCreate, SubscriptionUpdate, SubscriptionResponse
 from app.core.auth import get_current_active_user
+from app.services.exchange_rate_service import ExchangeRateService
 
 router = APIRouter(prefix="/subscriptions", tags=["訂閱管理"])
 
@@ -26,9 +27,24 @@ async def create_subscription(
     db: Session = Depends(get_db)
 ):
     """創建新訂閱"""
+    exchange_service = ExchangeRateService()
+    
+    # 如果不是台幣，需要轉換價格
+    price_twd = subscription.price
+    if subscription.currency.value != "TWD":
+        price_twd = await exchange_service.convert_currency(
+            subscription.currency.value, "TWD", subscription.original_price
+        )
+    
     db_subscription = Subscription(
         user_id=current_user.id,
-        **subscription.dict()
+        name=subscription.name,
+        price=price_twd,  # 台幣價格
+        original_price=subscription.original_price,  # 原始價格
+        currency=subscription.currency,  # 原始貨幣
+        cycle=subscription.cycle,
+        category=subscription.category,
+        start_date=subscription.start_date
     )
     
     db.add(db_subscription)

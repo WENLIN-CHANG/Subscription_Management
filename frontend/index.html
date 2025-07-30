@@ -225,20 +225,40 @@
               >
             </div>
             
-            <!-- 月費價格 -->
+            <!-- 原始價格 -->
             <div class="form-control w-full">
               <label class="label">
-                <span class="label-text font-medium">價格 (NT$)</span>
+                <span class="label-text font-medium">原始價格</span>
               </label>
               <input 
                 type="number" 
-                x-model="newSubscription.price"
-                placeholder="390"
+                x-model="newSubscription.originalPrice"
+                placeholder="9.99"
                 min="0"
                 step="0.01"
                 class="input input-bordered w-full focus:input-primary"
                 required
               >
+            </div>
+            
+            <!-- 貨幣選擇 -->
+            <div class="form-control w-full">
+              <label class="label">
+                <span class="label-text font-medium">貨幣</span>
+              </label>
+              <select 
+                x-model="newSubscription.currency"
+                class="select select-bordered w-full focus:select-primary"
+                required
+              >
+                <option value="TWD">🇹🇼 台幣 (TWD)</option>
+                <option value="USD">🇺🇸 美元 (USD)</option>
+                <option value="EUR">🇪🇺 歐元 (EUR)</option>
+                <option value="JPY">🇯🇵 日圓 (JPY)</option>
+                <option value="GBP">🇬🇧 英鎊 (GBP)</option>
+                <option value="KRW">🇰🇷 韓圓 (KRW)</option>
+                <option value="CNY">🇨🇳 人民幣 (CNY)</option>
+              </select>
             </div>
             
             <!-- 訂閱週期 -->
@@ -391,8 +411,15 @@
               
               <!-- 價格資訊 -->
               <div class="mb-4">
-                <div class="text-3xl font-bold text-success mb-2" x-text="formatCurrency(subscription.price)">
-                  NT$0
+                <div class="space-y-2">
+                  <!-- 原始價格 -->
+                  <div x-show="subscription.currency && subscription.currency !== 'TWD'" class="text-lg text-base-content/70">
+                    <span x-text="formatOriginalCurrency(subscription.originalPrice, subscription.currency)"></span>
+                  </div>
+                  <!-- 台幣價格 -->
+                  <div class="text-3xl font-bold text-success" x-text="formatCurrency(subscription.price)">
+                    NT$0
+                  </div>
                 </div>
                 <div class="flex justify-between items-center">
                   <div class="badge badge-ghost" x-text="getCycleName(subscription.cycle)"></div>

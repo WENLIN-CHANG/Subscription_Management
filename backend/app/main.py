@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database.connection import create_tables
 from app.core.config import settings
-from app.api import auth, subscriptions, budget
+from app.api import auth, subscriptions, budget, exchange_rates
 
 # 創建 FastAPI 應用
 app = FastAPI(
@@ -43,3 +43,4 @@ async def health_check():
 app.include_router(auth.router, prefix="/api")
 app.include_router(subscriptions.router, prefix="/api")
 app.include_router(budget.router, prefix="/api")
+app.include_router(exchange_rates.router, prefix="/api/exchange", tags=["匯率"])
