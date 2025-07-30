@@ -160,18 +160,16 @@
           </svg>
           <h3 class="font-bold text-lg">即將到期提醒</h3>
         </div>
-        <div class="space-y-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           <template x-for="subscription in getUpcomingExpiry()" :key="subscription.id">
-            <div class="card bg-base-100 shadow-sm w-full">
+            <div class="card bg-base-100 shadow-sm">
               <div class="card-body p-4">
-                <div class="flex items-center gap-4">
-                  <div class="flex-1 min-w-0">
+                <div class="flex flex-col gap-2">
+                  <div class="flex items-center justify-between">
                     <h4 class="font-semibold truncate" x-text="subscription.name"></h4>
-                    <p class="text-sm opacity-70" x-text="formatCurrency(subscription.price)"></p>
+                    <div class="badge badge-sm" :class="getDaysUntilPayment(subscription) <= 3 ? 'badge-error' : 'badge-warning'" x-text="getExpiryWarningText(subscription)"></div>
                   </div>
-                  <div class="flex-shrink-0 ml-auto">
-                    <div class="badge badge-lg" :class="getDaysUntilPayment(subscription) <= 3 ? 'badge-error' : 'badge-warning'" x-text="getExpiryWarningText(subscription)"></div>
-                  </div>
+                  <p class="text-sm opacity-70" x-text="formatCurrency(subscription.price)"></p>
                 </div>
               </div>
             </div>
