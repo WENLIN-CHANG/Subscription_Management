@@ -222,6 +222,68 @@ Alpine.data('subscriptionManager', () => ({
     return nextDate.toLocaleDateString('zh-TW')
   },
 
+  // 計算距離下次付款的天數
+  getDaysUntilPayment(subscription) {
+    const startDate = new Date(subscription.startDate)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    let nextDate = new Date(startDate)
+    
+    switch (subscription.cycle) {
+      case 'monthly':
+        while (nextDate <= today) {
+          nextDate.setMonth(nextDate.getMonth() + 1)
+        }
+        break
+      case 'quarterly':
+        while (nextDate <= today) {
+          nextDate.setMonth(nextDate.getMonth() + 3)
+        }
+        break
+      case 'yearly':
+        while (nextDate <= today) {
+          nextDate.setFullYear(nextDate.getFullYear() + 1)
+        }
+        break
+    }
+    
+    const diffTime = nextDate.getTime() - today.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    return diffDays
+  },
+
+  // 獲取到期提醒樣式
+  getExpiryWarningClass(subscription) {
+    const days = this.getDaysUntilPayment(subscription)
+    if (days <= 3) {
+      return 'text-red-600 font-semibold'
+    } else if (days <= 7) {
+      return 'text-orange-600 font-medium'
+    }
+    return 'text-gray-600'
+  },
+
+  // 獲取到期提醒文字
+  getExpiryWarningText(subscription) {
+    const days = this.getDaysUntilPayment(subscription)
+    if (days <= 0) {
+      return '今天到期！'
+    } else if (days === 1) {
+      return '明天到期'
+    } else if (days <= 3) {
+      return `${days} 天後到期`
+    } else if (days <= 7) {
+      return `${days} 天後到期`
+    }
+    return `${days} 天後`
+  },
+
+  // 獲取即將到期的訂閱
+  getUpcomingExpiry() {
+    return this.subscriptions.filter(sub => this.getDaysUntilPayment(sub) <= 7)
+  },
+
   // 本地存儲
   saveToStorage() {
     localStorage.setItem('subscriptions', JSON.stringify(this.subscriptions))

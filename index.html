@@ -10,10 +10,29 @@
 <body class="bg-gray-50 min-h-screen">
   <div class="container mx-auto px-4 py-8 max-w-4xl" x-data="subscriptionManager">
     <!-- 月總支出顯示區域 -->
-    <div class="text-center mb-12">
+    <div class="text-center mb-8">
       <h1 class="text-gray-600 text-xl mb-4">這個月你在訂閱服務上花了</h1>
       <div class="text-8xl font-bold text-red-500 mb-4" x-text="formatCurrency(monthlyTotal)">NT$0</div>
       <p class="text-gray-500 text-lg">年度預估支出：<span class="text-red-400 font-semibold" x-text="formatCurrency(monthlyTotal * 12)">NT$0</span></p>
+    </div>
+
+    <!-- 即將到期提醒 -->
+    <div x-show="getUpcomingExpiry().length > 0" class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-8">
+      <div class="flex items-center mb-3">
+        <div class="text-orange-500 text-2xl mr-2">⚠️</div>
+        <h3 class="text-lg font-semibold text-orange-800">即將到期提醒</h3>
+      </div>
+      <div class="space-y-2">
+        <template x-for="subscription in getUpcomingExpiry()" :key="subscription.id">
+          <div class="flex justify-between items-center bg-white rounded p-3">
+            <div>
+              <span class="font-medium text-gray-800" x-text="subscription.name"></span>
+              <span class="text-sm text-gray-500 ml-2" x-text="formatCurrency(subscription.price)"></span>
+            </div>
+            <span :class="getExpiryWarningClass(subscription)" x-text="getExpiryWarningText(subscription)"></span>
+          </div>
+        </template>
+      </div>
     </div>
 
     <!-- 新增/編輯訂閱表單 -->
@@ -145,9 +164,12 @@
             </div>
             
             <!-- 日期資訊 -->
-            <div class="mb-4 text-sm text-gray-600">
-              <div>開始日期：<span x-text="formatDate(subscription.startDate)"></span></div>
-              <div>下次付款：<span x-text="getNextPaymentDate(subscription)"></span></div>
+            <div class="mb-4 text-sm">
+              <div class="text-gray-600 mb-1">開始日期：<span x-text="formatDate(subscription.startDate)"></span></div>
+              <div class="flex justify-between items-center">
+                <span class="text-gray-600">下次付款：<span x-text="getNextPaymentDate(subscription)"></span></span>
+                <span :class="getExpiryWarningClass(subscription)" x-text="getExpiryWarningText(subscription)"></span>
+              </div>
             </div>
             
             <!-- 操作按鈕 -->
