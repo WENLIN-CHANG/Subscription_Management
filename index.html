@@ -12,8 +12,8 @@
     <!-- 月總支出顯示區域 -->
     <div class="text-center mb-12">
       <h1 class="text-gray-600 text-xl mb-4">這個月你在訂閱服務上花了</h1>
-      <div class="text-8xl font-bold text-red-500 mb-4" x-text="`$${monthlyTotal}`">$0</div>
-      <p class="text-gray-500 text-lg">年度預估支出：<span class="text-red-400 font-semibold" x-text="`$${monthlyTotal * 12}`">$0</span></p>
+      <div class="text-8xl font-bold text-red-500 mb-4" x-text="formatCurrency(monthlyTotal)">NT$0</div>
+      <p class="text-gray-500 text-lg">年度預估支出：<span class="text-red-400 font-semibold" x-text="formatCurrency(monthlyTotal * 12)">NT$0</span></p>
     </div>
 
     <!-- 新增訂閱表單 -->
@@ -115,12 +115,12 @@
             
             <!-- 價格資訊 -->
             <div class="mb-4">
-              <div class="text-2xl font-bold text-green-600 mb-1">
-                NT$ <span x-text="subscription.price"></span>
+              <div class="text-2xl font-bold text-green-600 mb-1" x-text="formatCurrency(subscription.price)">
+                NT$0
               </div>
               <div class="text-sm text-gray-500" x-text="getCycleName(subscription.cycle)"></div>
               <div class="text-sm text-gray-600">
-                月費用：NT$ <span x-text="getMonthlyPrice(subscription)"></span>
+                月費用：<span x-text="formatCurrency(getMonthlyPrice(subscription))">NT$0</span>
               </div>
             </div>
             
