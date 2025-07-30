@@ -7,10 +7,14 @@
   "type": "module",
   "main": "app.js",
   "scripts": {
-    "dev": "vite"
+    "dev": "concurrently --names \"FRONTEND,BACKEND\" --prefix-colors \"blue,green\" \"npm run frontend\" \"npm run backend\"",
+    "frontend": "vite",
+    "backend": "cd backend && python3 run_dev.py",
+    "backend-only": "cd backend && python3 run_dev.py"
   },
   "devDependencies": {
     "alpinejs": "^3.14.9",
+    "concurrently": "^9.2.0",
     "daisyui": "^5.0.50"
   },
   "dependencies": {
