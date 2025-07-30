@@ -1,2 +1,14 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+/* 修復 avatar 中表情符號的對齊問題 */
+.avatar.placeholder > div {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.avatar.placeholder span {
+  line-height: 1 !important;
+  vertical-align: baseline !important;
+}

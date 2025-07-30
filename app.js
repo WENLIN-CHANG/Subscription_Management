@@ -98,6 +98,10 @@ Alpine.data('subscriptionManager', () => ({
     return uiUtils.getCategoryName(category)
   },
 
+  getCategoryIcon(category) {
+    return uiUtils.getCategoryIcon(category)
+  },
+
   getCategoryColor(category) {
     return uiUtils.getCategoryColor(category)
   },

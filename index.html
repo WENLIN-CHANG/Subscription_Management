@@ -121,14 +121,16 @@
         </div>
         <div class="space-y-3">
           <template x-for="subscription in getUpcomingExpiry()" :key="subscription.id">
-            <div class="card bg-base-100 shadow-sm">
+            <div class="card bg-base-100 shadow-sm w-full">
               <div class="card-body p-4">
-                <div class="flex justify-between items-center">
-                  <div>
-                    <h4 class="font-semibold" x-text="subscription.name"></h4>
+                <div class="flex items-center gap-4">
+                  <div class="flex-1 min-w-0">
+                    <h4 class="font-semibold truncate" x-text="subscription.name"></h4>
                     <p class="text-sm opacity-70" x-text="formatCurrency(subscription.price)"></p>
                   </div>
-                  <div class="badge" :class="getDaysUntilPayment(subscription) <= 3 ? 'badge-error' : 'badge-warning'" x-text="getExpiryWarningText(subscription)"></div>
+                  <div class="flex-shrink-0 ml-auto">
+                    <div class="badge badge-lg" :class="getDaysUntilPayment(subscription) <= 3 ? 'badge-error' : 'badge-warning'" x-text="getExpiryWarningText(subscription)"></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -280,7 +282,7 @@
                   <div class="flex items-center gap-3">
                     <div class="avatar placeholder">
                       <div class="w-10 rounded-full" :class="stat.progressColor.replace('bg-', 'bg-') + ' text-white'">
-                        <span class="text-xs font-bold" x-text="stat.name.charAt(0)"></span>
+                        <span class="text-lg" x-text="getCategoryIcon(stat.originalCategory)"></span>
                       </div>
                     </div>
                     <div>

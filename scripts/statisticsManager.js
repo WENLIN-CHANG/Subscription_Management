@@ -5,7 +5,9 @@ import { uiUtils } from './uiUtils.js'
 export const statisticsManager = {
   // 獲取即將到期的訂閱
   getUpcomingExpiry(subscriptions) {
-    return subscriptions.filter(sub => calculationUtils.getDaysUntilPayment(sub) <= 7)
+    return subscriptions
+      .filter(sub => calculationUtils.getDaysUntilPayment(sub) <= 7)
+      .sort((a, b) => calculationUtils.getDaysUntilPayment(a) - calculationUtils.getDaysUntilPayment(b))
   },
 
   // 獲取分類統計數據

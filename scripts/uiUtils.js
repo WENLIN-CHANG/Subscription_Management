@@ -16,6 +16,20 @@ export const uiUtils = {
     return names[category] || category
   },
 
+  // 獲取分類圖標
+  getCategoryIcon(category) {
+    const icons = {
+      entertainment: '🎥',
+      productivity: '⚙️',
+      storage: '☁️',
+      fitness: '🏋️',
+      education: '📚',
+      news: '📰',
+      other: '📋'
+    }
+    return icons[category] || '📋'
+  },
+
   // 獲取分類顏色
   getCategoryColor(category) {
     const colors = {
