@@ -138,7 +138,7 @@ export const subscriptionActions = {
         currency: subscription.currency || 'TWD',
         cycle: subscription.cycle,
         category: subscription.category,
-        startDate: subscription.startDate
+        startDate: subscription.startDate ? subscription.startDate.split('T')[0].split(' ')[0] : ''
       }
       context.isEditing = true
       // 滾動到表單位置
