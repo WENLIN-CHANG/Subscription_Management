@@ -16,7 +16,6 @@ export const authManager = {
   
   registerForm: {
     username: '',
-    email: '',
     password: '',
     confirmPassword: ''
   },
@@ -63,14 +62,6 @@ export const authManager = {
     }
     if (this.registerForm.username.length < 3) {
       stateManager.error.set('用戶名至少需要3個字符', '註冊驗證')
-      return false
-    }
-    if (!this.registerForm.email.trim()) {
-      stateManager.error.set('請輸入郵箱地址', '註冊驗證')
-      return false
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.registerForm.email)) {
-      stateManager.error.set('請輸入有效的郵箱地址', '註冊驗證')
       return false
     }
     if (!this.registerForm.password) {
@@ -135,7 +126,6 @@ export const authManager = {
       const result = await stateManager.withLoading('register', async () => {
         const response = await apiClient.auth.register({
           username: this.registerForm.username,
-          email: this.registerForm.email,
           password: this.registerForm.password
         })
         
@@ -194,7 +184,6 @@ export const authManager = {
   resetRegisterForm() {
     this.registerForm = {
       username: '',
-      email: '',
       password: '',
       confirmPassword: ''
     }
@@ -290,17 +279,6 @@ export const authManager = {
                   placeholder="請輸入用戶名（至少3個字符）"
                   value="${this.registerForm.username}"
                   oninput="authManager.registerForm.username = this.value"
-                >
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">郵箱</label>
-                <input 
-                  type="email" 
-                  id="register-email"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="請輸入郵箱地址"
-                  value="${this.registerForm.email}"
-                  oninput="authManager.registerForm.email = this.value"
                 >
               </div>
               <div>

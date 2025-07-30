@@ -18,17 +18,9 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
             detail="用戶名已存在"
         )
     
-    # 檢查郵箱是否已存在
-    if db.query(User).filter(User.email == user.email).first():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="郵箱已註冊"
-        )
-    
     # 創建新用戶
     hashed_password = User.get_password_hash(user.password)
     db_user = User(
-        email=user.email,
         username=user.username,
         hashed_password=hashed_password
     )

@@ -8,6 +8,14 @@ from .user import User, pwd_context
 from .subscription import Subscription, SubscriptionCycle, SubscriptionCategory  
 from .budget import Budget
 
+# 配置模型關聯（在所有模型導入後）
+def configure_relationships():
+    """配置模型之間的關聯"""
+    pass
+
+# 導入後立即配置關聯
+configure_relationships()
+
 __all__ = [
     "Base",
     "User",

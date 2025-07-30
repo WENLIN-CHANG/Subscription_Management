@@ -1,10 +1,8 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Enum, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from sqlalchemy.ext.declarative import declarative_base
 import enum
-
-Base = declarative_base()
+from . import Base
 
 class SubscriptionCycle(str, enum.Enum):
     MONTHLY = "monthly"

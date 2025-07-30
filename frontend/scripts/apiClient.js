@@ -1,6 +1,6 @@
 // API 客戶端 - 處理與後端的通信
 export const apiClient = {
-  baseURL: 'http://localhost:8000/api',
+  baseURL: '/api',
   token: null,
 
   // 設置認證令牌
