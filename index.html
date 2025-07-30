@@ -13,7 +13,78 @@
     <div class="text-center mb-8">
       <h1 class="text-gray-600 text-xl mb-4">這個月你在訂閱服務上花了</h1>
       <div class="text-8xl font-bold text-red-500 mb-4" x-text="formatCurrency(monthlyTotal)">NT$0</div>
-      <p class="text-gray-500 text-lg">年度預估支出：<span class="text-red-400 font-semibold" x-text="formatCurrency(monthlyTotal * 12)">NT$0</span></p>
+      <div class="space-y-2">
+        <p class="text-gray-500 text-lg">年度預估支出：<span class="text-red-400 font-semibold" x-text="formatCurrency(monthlyTotal * 12)">NT$0</span></p>
+        
+        <!-- 預算設定和狀態 -->
+        <div x-show="monthlyBudget > 0" class="mt-4">
+          <div class="bg-white rounded-lg p-4 max-w-md mx-auto">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-sm text-gray-600">月度預算</span>
+              <button @click="openBudgetSetting()" class="text-blue-600 hover:text-blue-700 text-sm">
+                調整
+              </button>
+            </div>
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-semibold" x-text="formatCurrency(monthlyBudget)"></span>
+              <span :class="getBudgetStatusColor()" class="text-sm font-medium" x-text="getBudgetStatusText()"></span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                class="h-2 rounded-full transition-all duration-500"
+                :class="getBudgetStatus() === 'over' ? 'bg-red-500' : getBudgetStatus() === 'warning' ? 'bg-orange-500' : 'bg-green-500'"
+                :style="`width: ${getBudgetUsagePercentage()}%`"
+              ></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-500 mt-1">
+              <span x-text="`已用 ${getBudgetUsagePercentage().toFixed(1)}%`"></span>
+              <span x-show="getBudgetStatus() !== 'over'" x-text="`剩餘 ${formatCurrency(getRemainingBudget())}`"></span>
+              <span x-show="getBudgetStatus() === 'over'" x-text="`超支 ${formatCurrency(monthlyTotal - monthlyBudget)}`" class="text-red-600"></span>
+            </div>
+          </div>
+        </div>
+        
+        <button 
+          x-show="monthlyBudget <= 0" 
+          @click="openBudgetSetting()"
+          class="text-blue-600 hover:text-blue-700 text-sm underline mt-2"
+        >
+          設定月度預算
+        </button>
+      </div>
+    </div>
+
+    <!-- 預算設定彈窗 -->
+    <div x-show="showBudgetSetting" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click.self="closeBudgetSetting()">
+      <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+        <h3 class="text-lg font-bold text-gray-800 mb-4">設定月度預算</h3>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">預算金額 (NT$)</label>
+          <input 
+            type="number" 
+            x-model="tempBudget"
+            placeholder="3000"
+            min="0"
+            step="100"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            @keydown.enter="saveBudget()"
+          >
+        </div>
+        <div class="flex space-x-3">
+          <button 
+            @click="saveBudget()"
+            class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 font-medium"
+          >
+            儲存
+          </button>
+          <button 
+            @click="closeBudgetSetting()"
+            class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 font-medium"
+          >
+            取消
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- 即將到期提醒 -->

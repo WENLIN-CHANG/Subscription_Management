@@ -14,10 +14,14 @@ Alpine.data('subscriptionManager', () => ({
   },
   editingSubscription: null,
   isEditing: false,
+  monthlyBudget: 0,
+  showBudgetSetting: false,
+  tempBudget: '',
 
   // 初始化
   init() {
     this.loadFromStorage()
+    this.loadBudgetFromStorage()
     this.calculateMonthlyTotal()
   },
 
@@ -355,6 +359,85 @@ Alpine.data('subscriptionManager', () => ({
     if (stored) {
       this.subscriptions = JSON.parse(stored)
     }
+  },
+
+  // 預算相關方法
+  loadBudgetFromStorage() {
+    const stored = localStorage.getItem('monthlyBudget')
+    if (stored) {
+      this.monthlyBudget = parseFloat(stored)
+    }
+  },
+
+  saveBudgetToStorage() {
+    localStorage.setItem('monthlyBudget', this.monthlyBudget.toString())
+  },
+
+  openBudgetSetting() {
+    this.tempBudget = this.monthlyBudget.toString()
+    this.showBudgetSetting = true
+  },
+
+  closeBudgetSetting() {
+    this.showBudgetSetting = false
+    this.tempBudget = ''
+  },
+
+  saveBudget() {
+    const budget = parseFloat(this.tempBudget)
+    if (!isNaN(budget) && budget >= 0) {
+      this.monthlyBudget = budget
+      this.saveBudgetToStorage()
+      this.closeBudgetSetting()
+    } else {
+      alert('請輸入有效的預算金額')
+    }
+  },
+
+  // 預算相關計算
+  getBudgetUsagePercentage() {
+    if (this.monthlyBudget <= 0) return 0
+    return Math.min((this.monthlyTotal / this.monthlyBudget * 100), 100)
+  },
+
+  getBudgetStatus() {
+    if (this.monthlyBudget <= 0) return 'none'
+    const percentage = this.getBudgetUsagePercentage()
+    if (percentage >= 100) return 'over'
+    if (percentage >= 80) return 'warning'
+    return 'good'
+  },
+
+  getBudgetStatusText() {
+    const status = this.getBudgetStatus()
+    switch (status) {
+      case 'over':
+        return '已超支！'
+      case 'warning':
+        return '接近預算上限'
+      case 'good':
+        return '預算充足'
+      default:
+        return '未設定預算'
+    }
+  },
+
+  getBudgetStatusColor() {
+    const status = this.getBudgetStatus()
+    switch (status) {
+      case 'over':
+        return 'text-red-600'
+      case 'warning':
+        return 'text-orange-600'
+      case 'good':
+        return 'text-green-600'
+      default:
+        return 'text-gray-600'
+    }
+  },
+
+  getRemainingBudget() {
+    return Math.max(this.monthlyBudget - this.monthlyTotal, 0)
   },
 
   // 格式化貨幣顯示
