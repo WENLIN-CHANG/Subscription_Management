@@ -1,4 +1,5 @@
 import { apiClient } from './apiClient.js'
+import { DataMapper, SubscriptionFields } from './types.js'
 
 // 數據管理模塊 - 處理數據存儲操作
 export const dataManager = {
@@ -30,13 +31,8 @@ export const dataManager = {
       try {
         // 從後端獲取數據
         const subscriptions = await apiClient.subscriptions.getAll()
-        // 轉換後端格式到前端格式
-        return (subscriptions || []).map(sub => ({
-          ...sub,
-          startDate: sub.start_date, // 將後端的 start_date 轉換為前端的 startDate
-          originalPrice: sub.original_price, // 將後端的 original_price 轉換為前端的 originalPrice
-          currency: sub.currency || 'TWD' // 確保有預設貨幣
-        }))
+        // 使用統一的資料映射器轉換格式
+        return (subscriptions || []).map(sub => DataMapper.backendToFrontend(sub))
       } catch (error) {
         console.error('從後端載入訂閱失敗:', error)
         // 備用方案：從本地存儲載入
@@ -54,14 +50,12 @@ export const dataManager = {
   async createSubscription(subscriptionData) {
     if (this.isLoggedIn()) {
       try {
-        // 轉換前端數據格式到後端格式
+        // 使用統一的資料映射器轉換格式，並添加必要的資料處理
+        const unifiedData = DataMapper.frontendToUnified(subscriptionData)
         const backendData = {
-          name: subscriptionData.name,
-          original_price: parseFloat(subscriptionData.original_price),
-          currency: subscriptionData.currency,
-          cycle: subscriptionData.cycle,
-          category: subscriptionData.category || 'other',
-          start_date: new Date(subscriptionData.start_date).toISOString()
+          ...unifiedData,
+          category: unifiedData.category || 'other',
+          [SubscriptionFields.START_DATE]: new Date(unifiedData[SubscriptionFields.START_DATE]).toISOString()
         }
         return await apiClient.subscriptions.create(backendData)
       } catch (error) {
@@ -76,14 +70,22 @@ export const dataManager = {
   async updateSubscription(id, updateData) {
     if (this.isLoggedIn()) {
       try {
+        // 使用統一的資料映射器轉換格式
+        const unifiedData = DataMapper.frontendToUnified(updateData)
         const backendData = {}
-        if (updateData.name !== undefined) backendData.name = updateData.name
-        if (updateData.original_price !== undefined) backendData.original_price = parseFloat(updateData.original_price)
-        if (updateData.currency !== undefined) backendData.currency = updateData.currency
-        if (updateData.cycle !== undefined) backendData.cycle = updateData.cycle
-        if (updateData.category !== undefined) backendData.category = updateData.category
-        if (updateData.start_date !== undefined) backendData.start_date = new Date(updateData.start_date).toISOString()
-        if (updateData.is_active !== undefined) backendData.is_active = updateData.is_active
+        
+        // 處理所有欄位
+        Object.keys(unifiedData).forEach(key => {
+          if (unifiedData[key] !== undefined) {
+            if (key === SubscriptionFields.ORIGINAL_PRICE) {
+              backendData[key] = parseFloat(unifiedData[key])
+            } else if (key === SubscriptionFields.START_DATE) {
+              backendData[key] = new Date(unifiedData[key]).toISOString()
+            } else {
+              backendData[key] = unifiedData[key]
+            }
+          }
+        })
 
         return await apiClient.subscriptions.update(id, backendData)
       } catch (error) {

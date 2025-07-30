@@ -1,6 +1,7 @@
 // 訂閱操作模塊 - 訂閱的 CRUD 操作和表單驗證
 import { dataManager } from './dataManager.js'
 import { stateManager } from './stateManager.js'
+import { SubscriptionFields } from './types.js'
 
 export const subscriptionActions = {
   // 表單驗證
@@ -52,12 +53,12 @@ export const subscriptionActions = {
         // 如果已登入，使用 API 創建
         if (dataManager.isLoggedIn()) {
           await dataManager.createSubscription({
-            name: context.newSubscription.name,
-            original_price: parseFloat(context.newSubscription.originalPrice),
-            currency: context.newSubscription.currency,
-            cycle: context.newSubscription.cycle,
-            category: context.newSubscription.category,
-            start_date: context.newSubscription.startDate
+            [SubscriptionFields.NAME]: context.newSubscription.name,
+            [SubscriptionFields.ORIGINAL_PRICE]: parseFloat(context.newSubscription.originalPrice),
+            [SubscriptionFields.CURRENCY]: context.newSubscription.currency,
+            [SubscriptionFields.CYCLE]: context.newSubscription.cycle,
+            [SubscriptionFields.CATEGORY]: context.newSubscription.category,
+            [SubscriptionFields.START_DATE]: context.newSubscription.startDate
           })
           
           // 重新載入數據
@@ -165,12 +166,12 @@ export const subscriptionActions = {
       await stateManager.withLoading('updateSubscription', async () => {
         if (dataManager.isLoggedIn()) {
           await dataManager.updateSubscription(context.editingSubscription.id, {
-            name: context.newSubscription.name,
-            original_price: parseFloat(context.newSubscription.originalPrice),
-            currency: context.newSubscription.currency,
-            cycle: context.newSubscription.cycle,
-            category: context.newSubscription.category,
-            start_date: context.newSubscription.startDate
+            [SubscriptionFields.NAME]: context.newSubscription.name,
+            [SubscriptionFields.ORIGINAL_PRICE]: parseFloat(context.newSubscription.originalPrice),
+            [SubscriptionFields.CURRENCY]: context.newSubscription.currency,
+            [SubscriptionFields.CYCLE]: context.newSubscription.cycle,
+            [SubscriptionFields.CATEGORY]: context.newSubscription.category,
+            [SubscriptionFields.START_DATE]: context.newSubscription.startDate
           })
           
           // 重新載入數據
