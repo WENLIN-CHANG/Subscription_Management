@@ -225,40 +225,19 @@
               >
             </div>
             
-            <!-- 原始價格 -->
+            <!-- 價格 -->
             <div class="form-control w-full">
               <label class="label">
-                <span class="label-text font-medium">原始價格</span>
+                <span class="label-text font-medium">價格</span>
               </label>
               <input 
                 type="number" 
                 x-model="newSubscription.originalPrice"
-                placeholder="9.99"
                 min="0"
                 step="0.01"
                 class="input input-bordered w-full focus:input-primary"
                 required
               >
-            </div>
-            
-            <!-- 貨幣選擇 -->
-            <div class="form-control w-full">
-              <label class="label">
-                <span class="label-text font-medium">貨幣</span>
-              </label>
-              <select 
-                x-model="newSubscription.currency"
-                class="select select-bordered w-full focus:select-primary"
-                required
-              >
-                <option value="TWD">🇹🇼 台幣 (TWD)</option>
-                <option value="USD">🇺🇸 美元 (USD)</option>
-                <option value="EUR">🇪🇺 歐元 (EUR)</option>
-                <option value="JPY">🇯🇵 日圓 (JPY)</option>
-                <option value="GBP">🇬🇧 英鎊 (GBP)</option>
-                <option value="KRW">🇰🇷 韓圓 (KRW)</option>
-                <option value="CNY">🇨🇳 人民幣 (CNY)</option>
-              </select>
             </div>
             
             <!-- 訂閱週期 -->
@@ -274,6 +253,21 @@
                 <option value="monthly">每月</option>
                 <option value="quarterly">每季</option>
                 <option value="yearly">每年</option>
+              </select>
+            </div>
+            
+            <!-- 貨幣選擇 -->
+            <div class="form-control w-full">
+              <label class="label">
+                <span class="label-text font-medium">貨幣</span>
+              </label>
+              <select 
+                x-model="newSubscription.currency"
+                class="select select-bordered w-full focus:select-primary"
+                required
+              >
+                <option value="TWD">🇹🇼 台幣 (TWD)</option>
+                <option value="USD">🇺🇸 美元 (USD)</option>
               </select>
             </div>
             

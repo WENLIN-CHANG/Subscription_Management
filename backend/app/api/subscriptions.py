@@ -94,6 +94,30 @@ async def update_subscription(
     
     # 更新字段
     update_data = subscription_update.dict(exclude_unset=True)
+    
+    # 檢查是否需要重新計算匯率
+    need_currency_recalc = ('original_price' in update_data or 'currency' in update_data)
+    
+    if need_currency_recalc:
+        exchange_service = ExchangeRateService()
+        
+        # 獲取更新後的值（如果沒有提供就用現有值）
+        new_original_price = update_data.get('original_price', db_subscription.original_price)
+        new_currency = update_data.get('currency', db_subscription.currency)
+        
+        # 重新計算台幣價格
+        currency_code = new_currency.value if hasattr(new_currency, 'value') else new_currency
+        if currency_code != "TWD":
+            price_twd = await exchange_service.convert_currency(
+                new_original_price, currency_code, "TWD"
+            )
+        else:
+            price_twd = new_original_price
+        
+        # 更新台幣價格
+        update_data['price'] = price_twd
+    
+    # 應用所有更新
     for field, value in update_data.items():
         setattr(db_subscription, field, value)
     
