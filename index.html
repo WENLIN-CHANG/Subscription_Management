@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" data-theme="corporate">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,79 +7,102 @@
   <link rel="stylesheet" href="style.css">
   <script type="module" src="app.js"></script>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-base-200 min-h-screen">
   <div class="container mx-auto px-4 py-8 max-w-4xl" x-data="subscriptionManager">
     <!-- 月總支出顯示區域 -->
-    <div class="text-center mb-8">
-      <h1 class="text-gray-600 text-xl mb-4">這個月你在訂閱服務上花了</h1>
-      <div class="text-8xl font-bold text-red-500 mb-4" x-text="formatCurrency(monthlyTotal)">NT$0</div>
-      <div class="space-y-2">
-        <p class="text-gray-500 text-lg">年度預估支出：<span class="text-red-400 font-semibold" x-text="formatCurrency(monthlyTotal * 12)">NT$0</span></p>
+    <div class="hero bg-gradient-to-br from-primary/10 to-secondary/10 rounded-3xl mb-8 backdrop-blur-sm">
+      <div class="hero-content text-center py-12">
+        <div class="max-w-md">
+          <h1 class="text-base-content/70 text-xl mb-4">這個月你在訂閱服務上花了</h1>
+          <div class="text-7xl md:text-8xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-6" x-text="formatCurrency(monthlyTotal)">NT$0</div>
+          <div class="space-y-3">
+            <div class="stats shadow-lg bg-base-100/80 backdrop-blur-sm">
+              <div class="stat">
+                <div class="stat-title">年度預估支出</div>
+                <div class="stat-value text-2xl text-error" x-text="formatCurrency(monthlyTotal * 12)">NT$0</div>
+              </div>
+            </div>
         
-        <!-- 預算設定和狀態 -->
-        <div x-show="monthlyBudget > 0" class="mt-4">
-          <div class="bg-white rounded-lg p-4 max-w-md mx-auto">
-            <div class="flex justify-between items-center mb-2">
-              <span class="text-sm text-gray-600">月度預算</span>
-              <button @click="openBudgetSetting()" class="text-blue-600 hover:text-blue-700 text-sm">
-                調整
-              </button>
+            <!-- 預算設定和狀態 -->
+            <div x-show="monthlyBudget > 0" class="mt-6">
+              <div class="card bg-base-100 shadow-xl backdrop-blur-sm border border-base-300/50">
+                <div class="card-body p-6">
+                  <div class="flex justify-between items-center mb-4">
+                    <h3 class="card-title text-base">月度預算</h3>
+                    <button @click="openBudgetSetting()" class="btn btn-ghost btn-sm">
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      </svg>
+                      調整
+                    </button>
+                  </div>
+                  <div class="flex justify-between items-center mb-4">
+                    <span class="text-2xl font-bold" x-text="formatCurrency(monthlyBudget)"></span>
+                    <div class="badge badge-lg" :class="getBudgetStatus() === 'over' ? 'badge-error' : getBudgetStatus() === 'warning' ? 'badge-warning' : 'badge-success'" x-text="getBudgetStatusText()"></div>
+                  </div>
+                  <div class="mb-4">
+                    <progress 
+                      class="progress w-full h-3" 
+                      :class="getBudgetStatus() === 'over' ? 'progress-error' : getBudgetStatus() === 'warning' ? 'progress-warning' : 'progress-success'"
+                      :value="Math.min(getBudgetUsagePercentage(), 100)" 
+                      max="100"
+                    ></progress>
+                  </div>
+                  <div class="flex justify-between text-sm opacity-70">
+                    <span x-text="`已使用 ${getBudgetUsagePercentage().toFixed(1)}%`"></span>
+                    <span x-show="getBudgetStatus() !== 'over'" x-text="`剩餘 ${formatCurrency(getRemainingBudget())}`"></span>
+                    <span x-show="getBudgetStatus() === 'over'" x-text="`超支 ${formatCurrency(monthlyTotal - monthlyBudget)}`" class="text-error"></span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="flex justify-between items-center mb-2">
-              <span class="font-semibold" x-text="formatCurrency(monthlyBudget)"></span>
-              <span :class="getBudgetStatusColor()" class="text-sm font-medium" x-text="getBudgetStatusText()"></span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                class="h-2 rounded-full transition-all duration-500"
-                :class="getBudgetStatus() === 'over' ? 'bg-red-500' : getBudgetStatus() === 'warning' ? 'bg-orange-500' : 'bg-green-500'"
-                :style="`width: ${getBudgetUsagePercentage()}%`"
-              ></div>
-            </div>
-            <div class="flex justify-between text-xs text-gray-500 mt-1">
-              <span x-text="`已用 ${getBudgetUsagePercentage().toFixed(1)}%`"></span>
-              <span x-show="getBudgetStatus() !== 'over'" x-text="`剩餘 ${formatCurrency(getRemainingBudget())}`"></span>
-              <span x-show="getBudgetStatus() === 'over'" x-text="`超支 ${formatCurrency(monthlyTotal - monthlyBudget)}`" class="text-red-600"></span>
-            </div>
+            
+            <button 
+              x-show="monthlyBudget <= 0" 
+              @click="openBudgetSetting()"
+              class="btn btn-outline btn-primary mt-6"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              設定月度預算
+            </button>
           </div>
         </div>
-        
-        <button 
-          x-show="monthlyBudget <= 0" 
-          @click="openBudgetSetting()"
-          class="text-blue-600 hover:text-blue-700 text-sm underline mt-2"
-        >
-          設定月度預算
-        </button>
       </div>
     </div>
 
     <!-- 預算設定彈窗 -->
-    <div x-show="showBudgetSetting" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click.self="closeBudgetSetting()">
-      <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-        <h3 class="text-lg font-bold text-gray-800 mb-4">設定月度預算</h3>
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-2">預算金額 (NT$)</label>
+    <div class="modal" :class="showBudgetSetting ? 'modal-open' : ''" @click.self="closeBudgetSetting()">
+      <div class="modal-box w-11/12 max-w-md">
+        <h3 class="font-bold text-xl mb-6">設定月度預算</h3>
+        <div class="form-control w-full mb-6">
+          <label class="label">
+            <span class="label-text">預算金額 (NT$)</span>
+          </label>
           <input 
             type="number" 
             x-model="tempBudget"
             placeholder="3000"
             min="0"
             step="100"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="input input-bordered w-full focus:input-primary"
             @keydown.enter="saveBudget()"
           >
         </div>
-        <div class="flex space-x-3">
+        <div class="modal-action">
           <button 
             @click="saveBudget()"
-            class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 font-medium"
+            class="btn btn-primary"
           >
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
             儲存
           </button>
           <button 
             @click="closeBudgetSetting()"
-            class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 font-medium"
+            class="btn btn-ghost"
           >
             取消
           </button>
@@ -88,218 +111,295 @@
     </div>
 
     <!-- 即將到期提醒 -->
-    <div x-show="getUpcomingExpiry().length > 0" class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-8">
-      <div class="flex items-center mb-3">
-        <div class="text-orange-500 text-2xl mr-2">⚠️</div>
-        <h3 class="text-lg font-semibold text-orange-800">即將到期提醒</h3>
-      </div>
-      <div class="space-y-2">
-        <template x-for="subscription in getUpcomingExpiry()" :key="subscription.id">
-          <div class="flex justify-between items-center bg-white rounded p-3">
-            <div>
-              <span class="font-medium text-gray-800" x-text="subscription.name"></span>
-              <span class="text-sm text-gray-500 ml-2" x-text="formatCurrency(subscription.price)"></span>
+    <div x-show="getUpcomingExpiry().length > 0" class="alert alert-warning shadow-lg mb-8 backdrop-blur-sm">
+      <div class="w-full">
+        <div class="flex items-center mb-4">
+          <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+          </svg>
+          <h3 class="font-bold text-lg">即將到期提醒</h3>
+        </div>
+        <div class="space-y-3">
+          <template x-for="subscription in getUpcomingExpiry()" :key="subscription.id">
+            <div class="card bg-base-100 shadow-sm">
+              <div class="card-body p-4">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <h4 class="font-semibold" x-text="subscription.name"></h4>
+                    <p class="text-sm opacity-70" x-text="formatCurrency(subscription.price)"></p>
+                  </div>
+                  <div class="badge" :class="getDaysUntilPayment(subscription) <= 3 ? 'badge-error' : 'badge-warning'" x-text="getExpiryWarningText(subscription)"></div>
+                </div>
+              </div>
             </div>
-            <span :class="getExpiryWarningClass(subscription)" x-text="getExpiryWarningText(subscription)"></span>
-          </div>
-        </template>
+          </template>
+        </div>
       </div>
     </div>
 
     <!-- 新增/編輯訂閱表單 -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800" x-text="isEditing ? '編輯訂閱服務' : '新增訂閱服務'">新增訂閱服務</h2>
-        <button 
-          x-show="isEditing" 
-          @click="cancelEdit()"
-          class="text-gray-500 hover:text-gray-700 text-sm"
-        >
-          取消編輯
-        </button>
-      </div>
-      <form @submit.prevent="isEditing ? updateSubscription() : addSubscription()" class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- 服務名稱 -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">服務名稱</label>
-            <input 
-              type="text" 
-              x-model="newSubscription.name"
-              placeholder="例如：Netflix, Spotify"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 focus:scale-105"
-              required
-            >
-          </div>
-          
-          <!-- 月費價格 -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">價格 (NT$)</label>
-            <input 
-              type="number" 
-              x-model="newSubscription.price"
-              placeholder="390"
-              min="0"
-              step="0.01"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 focus:scale-105"
-              required
-            >
-          </div>
-          
-          <!-- 訂閱週期 -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">訂閱週期</label>
-            <select 
-              x-model="newSubscription.cycle"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 focus:scale-105"
-              required
-            >
-              <option value="monthly">每月</option>
-              <option value="quarterly">每季</option>
-              <option value="yearly">每年</option>
-            </select>
-          </div>
-          
-          <!-- 服務分類 -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">服務分類</label>
-            <select 
-              x-model="newSubscription.category"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 focus:scale-105"
-              required
-            >
-              <option value="">請選擇分類</option>
-              <option value="entertainment">娛樂影音</option>
-              <option value="productivity">生產力工具</option>
-              <option value="storage">雲端存儲</option>
-              <option value="fitness">健身運動</option>
-              <option value="education">教育學習</option>
-              <option value="news">新聞資訊</option>
-              <option value="other">其他</option>
-            </select>
-          </div>
-          
-          <!-- 開始日期 -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">開始日期</label>
-            <input 
-              type="date" 
-              x-model="newSubscription.startDate"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 focus:scale-105"
-              required
-            >
-          </div>
-        </div>
-        
-        <div class="flex space-x-4">
+    <div class="card bg-base-100 shadow-xl mb-8">
+      <div class="card-body">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="card-title text-2xl" x-text="isEditing ? '編輯訂閱服務' : '新增訂閱服務'">新增訂閱服務</h2>
           <button 
-            type="submit"
-            class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium transition-all duration-200 hover:scale-105 active:scale-95 transform"
-            x-text="isEditing ? '更新訂閱' : '新增訂閱'"
-          >
-            新增訂閱
-          </button>
-          <button 
-            x-show="isEditing"
-            type="button"
+            x-show="isEditing" 
             @click="cancelEdit()"
-            class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 font-medium transition-all duration-200 hover:scale-105 active:scale-95 transform"
+            class="btn btn-ghost btn-sm"
           >
-            取消
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            取消編輯
           </button>
         </div>
-      </form>
+        <form @submit.prevent="isEditing ? updateSubscription() : addSubscription()" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 服務名稱 -->
+            <div class="form-control w-full">
+              <label class="label">
+                <span class="label-text font-medium">服務名稱</span>
+              </label>
+              <input 
+                type="text" 
+                x-model="newSubscription.name"
+                placeholder="例如：Netflix, Spotify"
+                class="input input-bordered w-full focus:input-primary"
+                required
+              >
+            </div>
+            
+            <!-- 月費價格 -->
+            <div class="form-control w-full">
+              <label class="label">
+                <span class="label-text font-medium">價格 (NT$)</span>
+              </label>
+              <input 
+                type="number" 
+                x-model="newSubscription.price"
+                placeholder="390"
+                min="0"
+                step="0.01"
+                class="input input-bordered w-full focus:input-primary"
+                required
+              >
+            </div>
+            
+            <!-- 訂閱週期 -->
+            <div class="form-control w-full">
+              <label class="label">
+                <span class="label-text font-medium">訂閱週期</span>
+              </label>
+              <select 
+                x-model="newSubscription.cycle"
+                class="select select-bordered w-full focus:select-primary"
+                required
+              >
+                <option value="monthly">每月</option>
+                <option value="quarterly">每季</option>
+                <option value="yearly">每年</option>
+              </select>
+            </div>
+            
+            <!-- 服務分類 -->
+            <div class="form-control w-full">
+              <label class="label">
+                <span class="label-text font-medium">服務分類</span>
+              </label>
+              <select 
+                x-model="newSubscription.category"
+                class="select select-bordered w-full focus:select-primary"
+                required
+              >
+                <option value="">請選擇分類</option>
+                <option value="entertainment">🎥 娛樂影音</option>
+                <option value="productivity">⚙️ 生產力工具</option>
+                <option value="storage">☁️ 雲端存儲</option>
+                <option value="fitness">🏋️ 健身運動</option>
+                <option value="education">📚 教育學習</option>
+                <option value="news">📰 新聞資訊</option>
+                <option value="other">📋 其他</option>
+              </select>
+            </div>
+            
+            <!-- 開始日期 -->
+            <div class="form-control w-full md:col-span-2">
+              <label class="label">
+                <span class="label-text font-medium">開始日期</span>
+              </label>
+              <input 
+                type="date" 
+                x-model="newSubscription.startDate"
+                class="input input-bordered w-full focus:input-primary"
+                required
+              >
+            </div>
+          </div>
+          
+          <div class="flex gap-4 pt-4">
+            <button 
+              type="submit"
+              class="btn btn-primary flex-1"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" x-show="!isEditing"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" x-show="isEditing"></path>
+              </svg>
+              <span x-text="isEditing ? '更新訂閱' : '新增訂閱'">新增訂閱</span>
+            </button>
+            <button 
+              x-show="isEditing"
+              type="button"
+              @click="cancelEdit()"
+              class="btn btn-outline flex-1"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+              取消
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- 分類統計圖表 -->
-    <div x-show="subscriptions.length > 0" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="bg-white rounded-lg shadow-md p-6 mb-8">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6">支出分類統計</h2>
-      <div class="space-y-4">
-        <template x-for="stat in getCategoryStats()" :key="stat.name">
-          <div class="flex items-center justify-between p-4 rounded-lg transition-all duration-300 hover:shadow-md" :class="stat.color">
-            <div class="flex items-center space-x-4 flex-1">
-              <div class="min-w-0 flex-1">
-                <div class="flex justify-between items-center mb-2">
-                  <span class="font-medium" x-text="stat.name"></span>
+    <div x-show="subscriptions.length > 0" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="card bg-base-100 shadow-xl mb-8">
+      <div class="card-body">
+        <h2 class="card-title text-2xl mb-6">
+          <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+          支出分類統計
+        </h2>
+        <div class="space-y-4">
+          <template x-for="stat in getCategoryStats()" :key="stat.name">
+            <div class="card bg-base-200/50 hover:bg-base-200 transition-all duration-300 hover:shadow-md">
+              <div class="card-body p-4">
+                <div class="flex justify-between items-center mb-3">
+                  <div class="flex items-center gap-3">
+                    <div class="avatar placeholder">
+                      <div class="w-10 rounded-full" :class="stat.progressColor.replace('bg-', 'bg-') + ' text-white'">
+                        <span class="text-xs font-bold" x-text="stat.name.charAt(0)"></span>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 class="font-semibold" x-text="stat.name"></h3>
+                      <p class="text-sm opacity-70" x-text="`${stat.count} 個服務`"></p>
+                    </div>
+                  </div>
                   <div class="text-right">
-                    <span class="font-semibold" x-text="formatCurrency(stat.amount)"></span>
-                    <span class="text-sm ml-2" x-text="`(${stat.percentage}%)`"></span>
+                    <div class="text-xl font-bold" x-text="formatCurrency(stat.amount)"></div>
+                    <div class="badge badge-outline" x-text="`${stat.percentage}%`"></div>
                   </div>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-3">
-                  <div 
-                    class="h-3 rounded-full transition-all duration-500"
-                    :class="stat.progressColor"
-                    :style="`width: ${stat.percentage}%`"
-                  ></div>
+                <div class="mb-2">
+                  <progress 
+                    class="progress w-full h-2" 
+                    :class="stat.progressColor.includes('red') ? 'progress-error' : stat.progressColor.includes('blue') ? 'progress-info' : stat.progressColor.includes('green') ? 'progress-success' : stat.progressColor.includes('orange') ? 'progress-warning' : stat.progressColor.includes('purple') ? 'progress-secondary' : 'progress-primary'"
+                    :value="stat.percentage" 
+                    max="100"
+                  ></progress>
                 </div>
-                <div class="flex justify-between text-sm mt-1">
-                  <span x-text="`${stat.count} 個服務`"></span>
+                <div class="text-sm opacity-70 text-right">
                   <span x-text="`平均 ${formatCurrency(stat.amount / stat.count)}`"></span>
                 </div>
               </div>
             </div>
-          </div>
-        </template>
+          </template>
+        </div>
       </div>
     </div>
 
     <!-- 訂閱項目列表 -->
     <div class="mb-8">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6">我的訂閱服務</h2>
+      <div class="flex items-center gap-3 mb-6">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+        </svg>
+        <h2 class="text-2xl font-bold">我的訂閱服務</h2>
+        <div class="badge badge-primary" x-text="subscriptions.length"></div>
+      </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <template x-for="subscription in subscriptions" :key="subscription.id">
-          <div class="bg-white rounded-lg shadow-md p-6 border-l-4 transition-all duration-300 hover:shadow-lg hover:scale-105 transform" :class="getCategoryColor(subscription.category)">
-            <!-- 服務名稱和分類 -->
-            <div class="flex justify-between items-start mb-4">
-              <h3 class="text-lg font-bold text-gray-800" x-text="subscription.name"></h3>
-              <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600" x-text="getCategoryName(subscription.category)"></span>
-            </div>
-            
-            <!-- 價格資訊 -->
-            <div class="mb-4">
-              <div class="text-2xl font-bold text-green-600 mb-1" x-text="formatCurrency(subscription.price)">
-                NT$0
+          <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border-l-4" :class="getCategoryColor(subscription.category).replace('border-', 'border-l-')">
+            <div class="card-body p-6">
+              <!-- 服務名稱和分類 -->
+              <div class="flex justify-between items-start mb-4">
+                <h3 class="card-title text-lg" x-text="subscription.name"></h3>
+                <div class="badge badge-outline badge-sm" x-text="getCategoryName(subscription.category)"></div>
               </div>
-              <div class="text-sm text-gray-500" x-text="getCycleName(subscription.cycle)"></div>
-              <div class="text-sm text-gray-600">
-                月費用：<span x-text="formatCurrency(getMonthlyPrice(subscription))">NT$0</span>
+              
+              <!-- 價格資訊 -->
+              <div class="mb-4">
+                <div class="text-3xl font-bold text-success mb-2" x-text="formatCurrency(subscription.price)">
+                  NT$0
+                </div>
+                <div class="flex justify-between items-center">
+                  <div class="badge badge-ghost" x-text="getCycleName(subscription.cycle)"></div>
+                  <div class="text-sm">
+                    月費用：<span class="font-semibold" x-text="formatCurrency(getMonthlyPrice(subscription))">NT$0</span>
+                  </div>
+                </div>
               </div>
-            </div>
-            
-            <!-- 日期資訊 -->
-            <div class="mb-4 text-sm">
-              <div class="text-gray-600 mb-1">開始日期：<span x-text="formatDate(subscription.startDate)"></span></div>
-              <div class="flex justify-between items-center">
-                <span class="text-gray-600">下次付款：<span x-text="getNextPaymentDate(subscription)"></span></span>
-                <span :class="getExpiryWarningClass(subscription)" x-text="getExpiryWarningText(subscription)"></span>
+              
+              <!-- 日期資訊 -->
+              <div class="mb-4 space-y-2">
+                <div class="flex justify-between text-sm">
+                  <span class="opacity-70">開始日期</span>
+                  <span x-text="formatDate(subscription.startDate)"></span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="opacity-70">下次付款</span>
+                  <span x-text="getNextPaymentDate(subscription)"></span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm opacity-70">到期提醒</span>
+                  <div class="badge badge-sm" :class="getDaysUntilPayment(subscription) <= 3 ? 'badge-error' : getDaysUntilPayment(subscription) <= 7 ? 'badge-warning' : 'badge-info'" x-text="getExpiryWarningText(subscription)"></div>
+                </div>
               </div>
-            </div>
-            
-            <!-- 操作按鈕 -->
-            <div class="flex space-x-2">
-              <button 
-                @click="editSubscription(subscription.id)"
-                class="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-md hover:bg-gray-200 text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95"
-              >
-                編輯
-              </button>
-              <button 
-                @click="deleteSubscription(subscription.id)"
-                class="flex-1 bg-red-100 text-red-700 py-2 px-3 rounded-md hover:bg-red-200 text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95"
-              >
-                刪除
-              </button>
+              
+              <!-- 操作按鈕 -->
+              <div class="card-actions justify-end gap-2">
+                <button 
+                  @click="editSubscription(subscription.id)"
+                  class="btn btn-outline btn-primary btn-sm"
+                >
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                  編輯
+                </button>
+                <button 
+                  @click="deleteSubscription(subscription.id)"
+                  class="btn btn-outline btn-error btn-sm"
+                >
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                  刪除
+                </button>
+              </div>
             </div>
           </div>
         </template>
       </div>
       
       <!-- 空狀態提示 -->
-      <div x-show="subscriptions.length === 0" class="text-center py-12">
-        <div class="text-gray-400 text-6xl mb-4">📱</div>
-        <h3 class="text-xl font-medium text-gray-600 mb-2">還沒有訂閱服務</h3>
-        <p class="text-gray-500">新增你的第一個訂閱服務開始追蹤支出吧！</p>
+      <div x-show="subscriptions.length === 0" class="hero bg-base-200 rounded-3xl">
+        <div class="hero-content text-center py-16">
+          <div class="max-w-md">
+            <div class="text-6xl mb-6">📱</div>
+            <h3 class="text-2xl font-bold mb-4">還沒有訂閱服務</h3>
+            <p class="mb-6 opacity-70">新增你的第一個訂閱服務開始追蹤支出吧！</p>
+            <button class="btn btn-primary" @click="document.querySelector('form input').focus()">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              開始新增
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

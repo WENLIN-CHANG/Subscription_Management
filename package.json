@@ -10,7 +10,8 @@
     "dev": "vite"
   },
   "devDependencies": {
-    "alpinejs": "^3.14.9"
+    "alpinejs": "^3.14.9",
+    "daisyui": "^5.0.50"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
