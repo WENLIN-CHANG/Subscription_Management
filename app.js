@@ -134,9 +134,39 @@ Alpine.data('subscriptionManager', () => ({
 
   // 計算月支出總額
   calculateMonthlyTotal() {
-    this.monthlyTotal = this.subscriptions.reduce((total, subscription) => {
+    const newTotal = this.subscriptions.reduce((total, subscription) => {
       return total + this.getMonthlyPrice(subscription)
     }, 0)
+    
+    // 數字動畫效果
+    this.animateNumber(this.monthlyTotal, newTotal, (value) => {
+      this.monthlyTotal = value
+    })
+  },
+
+  // 數字動畫效果
+  animateNumber(from, to, callback, duration = 800) {
+    const startTime = performance.now()
+    const difference = to - from
+    
+    const step = (currentTime) => {
+      const elapsed = currentTime - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      
+      // 使用 easeOutCubic 緩動函數
+      const easeProgress = 1 - Math.pow(1 - progress, 3)
+      const currentValue = from + (difference * easeProgress)
+      
+      callback(currentValue)
+      
+      if (progress < 1) {
+        requestAnimationFrame(step)
+      } else {
+        callback(to) // 確保最終值準確
+      }
+    }
+    
+    requestAnimationFrame(step)
   },
 
   // 獲取月費用
