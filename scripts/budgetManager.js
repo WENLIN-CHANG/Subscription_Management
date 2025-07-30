@@ -1,5 +1,6 @@
 // 預算管理模塊 - 預算管理相關功能
-import { dataManager } from './dataManager.js'
+import { dataManager } from './dataManager.js' 
+import { stateManager } from './stateManager.js'
 
 export const budgetManager = {
   // 打開預算設定
@@ -15,14 +16,27 @@ export const budgetManager = {
   },
 
   // 保存預算
-  saveBudget(context) {
+  async saveBudget(context) {
     const budget = parseFloat(context.tempBudget)
-    if (!isNaN(budget) && budget >= 0) {
-      context.monthlyBudget = budget
-      dataManager.saveBudget(budget)
+    if (isNaN(budget) || budget < 0) {
+      stateManager.error.set('請輸入有效的預算金額', '預算設定')
+      return
+    }
+
+    try {
+      await stateManager.withLoading('saveBudget', async () => {
+        await dataManager.saveBudget(budget)
+        context.monthlyBudget = budget
+      }, {
+        errorContext: '保存預算',
+        successMessage: `成功設定月度預算：$${budget}`,
+        successContext: '預算管理'
+      })
+      
       this.closeBudgetSetting(context)
-    } else {
-      alert('請輸入有效的預算金額')
+      
+    } catch (error) {
+      console.error('保存預算失敗:', error)
     }
   },
 

@@ -5,6 +5,8 @@ import { uiUtils } from './scripts/uiUtils.js'
 import { subscriptionActions } from './scripts/subscriptionActions.js'
 import { budgetManager } from './scripts/budgetManager.js'
 import { statisticsManager } from './scripts/statisticsManager.js'
+import { stateManager } from './scripts/stateManager.js'
+import { migrationManager } from './scripts/migrationManager.js'
 
 // 訂閱管理主要組件
 Alpine.data('subscriptionManager', () => ({
@@ -25,10 +27,30 @@ Alpine.data('subscriptionManager', () => ({
   tempBudget: '',
 
   // 初始化
-  init() {
-    this.subscriptions = dataManager.loadSubscriptions()
-    this.monthlyBudget = dataManager.loadBudget()
-    this.calculateMonthlyTotal()
+  async init() {
+    try {
+      // 初始化狀態管理器
+      if (!window.stateManager) {
+        stateManager.init()
+      }
+      
+      // 載入數據
+      await stateManager.withLoading('init', async () => {
+        this.subscriptions = await dataManager.loadSubscriptions()
+        this.monthlyBudget = await dataManager.loadBudget()
+        this.calculateMonthlyTotal()
+      }, {
+        errorContext: '初始化',
+        successMessage: null // 不顯示成功訊息
+      })
+      
+      // 檢查是否需要數據遷移
+      migrationManager.checkAndPromptMigration()
+      
+    } catch (error) {
+      console.error('初始化失敗:', error)
+      stateManager.error.set(error, '初始化')
+    }
   },
 
   // 訂閱操作方法
