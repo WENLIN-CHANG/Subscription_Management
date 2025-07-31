@@ -8,6 +8,7 @@ import { statisticsManager } from './scripts/statisticsManager.js'
 import { stateManager } from './scripts/stateManager.js'
 import { migrationManager } from './scripts/migrationManager.js'
 import { authManager } from './scripts/authManager.js'
+import { themeManager } from './scripts/themeManager.js'
 
 // 訂閱管理主要組件
 Alpine.data('subscriptionManager', () => ({
@@ -32,6 +33,9 @@ Alpine.data('subscriptionManager', () => ({
   // 認證狀態
   isLoggedIn: false,
   currentUser: null,
+  
+  // 主題管理狀態
+  currentTheme: 'corporate',
 
   // 初始化
   async init() {
@@ -44,6 +48,10 @@ Alpine.data('subscriptionManager', () => ({
       // 初始化認證狀態
       this.isLoggedIn = await authManager.init()
       this.currentUser = authManager.currentUser
+      
+      // 初始化主題管理器
+      themeManager.init()
+      this.currentTheme = themeManager.currentTheme
       
       // 載入數據
       await stateManager.withLoading('init', async () => {
@@ -212,6 +220,39 @@ Alpine.data('subscriptionManager', () => ({
 
   logout() {
     authManager.logout()
+  },
+
+  // 主題管理方法
+  changeTheme(themeName) {
+    if (themeManager.setTheme(themeName)) {
+      this.currentTheme = themeManager.currentTheme
+    }
+  },
+
+  toggleTheme() {
+    if (themeManager.toggleTheme()) {
+      this.currentTheme = themeManager.currentTheme
+    }
+  },
+
+  getCurrentThemeType() {
+    return themeManager.getCurrentThemeType()
+  },
+
+  getAvailableThemes() {
+    return themeManager.getAvailableThemes()
+  },
+
+  getCurrentThemeInfo() {
+    return themeManager.getCurrentThemeInfo()
+  },
+
+  isDarkTheme() {
+    return themeManager.isDarkTheme()
+  },
+
+  isLightTheme() {
+    return themeManager.isLightTheme()
   }
 }))
 

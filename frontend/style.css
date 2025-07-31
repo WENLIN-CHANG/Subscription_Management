@@ -12,3 +12,129 @@
   line-height: 1 !important;
   vertical-align: baseline !important;
 }
+
+/* 主題切換過渡動畫 */
+.theme_transition,
+.theme_transition *,
+.theme_transition *:before,
+.theme_transition *:after {
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+}
+
+/* 主題滑動切換器 */
+.theme_toggle_container {
+  position: relative;
+  display: inline-block;
+}
+
+.theme_toggle_switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 32px;
+  cursor: pointer;
+}
+
+.theme_toggle_input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.theme_toggle_slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #87CEEB 0%, #FFE4B5 100%);
+  transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+  border-radius: 34px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  overflow: hidden;
+}
+
+.theme_toggle_slider:before {
+  position: absolute;
+  content: "";
+  height: 24px;
+  width: 24px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.theme_toggle_input:checked + .theme_toggle_slider {
+  background: linear-gradient(135deg, #2D1B69 0%, #0F0C29 100%);
+}
+
+.theme_toggle_input:checked + .theme_toggle_slider:before {
+  transform: translateX(28px);
+}
+
+.theme_toggle_icon {
+  font-size: 14px;
+  line-height: 1;
+  transition: all 0.3s ease-in-out;
+  z-index: 1;
+  position: relative;
+}
+
+.sun_icon {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+.moon_icon {
+  opacity: 0.6;
+  transform: scale(0.8) rotate(-20deg);
+}
+
+.theme_toggle_input:checked + .theme_toggle_slider .sun_icon {
+  opacity: 0.6;
+  transform: scale(0.8) rotate(20deg);
+}
+
+.theme_toggle_input:checked + .theme_toggle_slider .moon_icon {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+/* 滑動切換器 hover 效果 */
+.theme_toggle_switch:hover .theme_toggle_slider {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.theme_toggle_switch:hover .theme_toggle_slider:before {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 響應式設計 */
+@media (max-width: 640px) {
+  .theme_toggle_switch {
+    width: 52px;
+    height: 28px;
+  }
+  
+  .theme_toggle_slider:before {
+    height: 20px;
+    width: 20px;
+  }
+  
+  .theme_toggle_input:checked + .theme_toggle_slider:before {
+    transform: translateX(24px);
+  }
+  
+  .theme_toggle_icon {
+    font-size: 12px;
+  }
+}

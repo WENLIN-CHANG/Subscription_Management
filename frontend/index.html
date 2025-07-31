@@ -16,6 +16,24 @@
       </div>
       
       <div class="navbar-end">
+        <!-- 主題切換器 -->
+        <div class="flex items-center mr-2">
+          <div class="theme_toggle_container">
+            <label class="theme_toggle_switch">
+              <input 
+                type="checkbox" 
+                :checked="getCurrentThemeType() === 'dark'"
+                @change="toggleTheme()"
+                class="theme_toggle_input"
+              >
+              <span class="theme_toggle_slider">
+                <span class="theme_toggle_icon sun_icon">☀️</span>
+                <span class="theme_toggle_icon moon_icon">🌙</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
         <!-- 已登入狀態 -->
         <div x-show="isLoggedIn" class="flex items-center space-x-4 mr-4">
           <div class="flex items-center space-x-2">

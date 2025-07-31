@@ -213,16 +213,16 @@ export const authManager = {
     dialog.id = 'auth-dialog'
     dialog.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'
     dialog.innerHTML = `
-      <div class="bg-white rounded-lg w-full max-w-md mx-4">
+      <div class="bg-base-100 rounded-lg w-full max-w-md mx-4 shadow-2xl">
         <!-- 標籤頁 -->
-        <div class="flex border-b">
-          <button id="login-tab" class="flex-1 py-3 px-4 text-center font-medium transition-colors ${mode === 'login' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' : 'text-gray-500 hover:text-gray-700'}">
+        <div class="flex border-b border-base-300">
+          <button id="login-tab" class="flex-1 py-3 px-4 text-center font-medium transition-colors ${mode === 'login' ? 'text-primary border-b-2 border-primary bg-primary/10' : 'text-base-content/60 hover:text-base-content'}">
             登入
           </button>
-          <button id="register-tab" class="flex-1 py-3 px-4 text-center font-medium transition-colors ${mode === 'register' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' : 'text-gray-500 hover:text-gray-700'}">
+          <button id="register-tab" class="flex-1 py-3 px-4 text-center font-medium transition-colors ${mode === 'register' ? 'text-primary border-b-2 border-primary bg-primary/10' : 'text-base-content/60 hover:text-base-content'}">
             註冊
           </button>
-          <button onclick="authManager.hideAuthDialog()" class="p-3 text-gray-400 hover:text-gray-600">
+          <button onclick="authManager.hideAuthDialog()" class="p-3 text-base-content/40 hover:text-base-content/60">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
@@ -234,22 +234,22 @@ export const authManager = {
           <form onsubmit="event.preventDefault(); authManager.login()">
             <div class="space-y-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">用戶名</label>
+                <label class="block text-sm font-medium text-base-content mb-1">用戶名</label>
                 <input 
                   type="text" 
                   id="login-username"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="input input-bordered w-full focus:input-primary"
                   placeholder="請輸入用戶名"
                   value="${this.loginForm.username}"
                   oninput="authManager.loginForm.username = this.value"
                 >
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">密碼</label>
+                <label class="block text-sm font-medium text-base-content mb-1">密碼</label>
                 <input 
                   type="password" 
                   id="login-password"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="input input-bordered w-full focus:input-primary"
                   placeholder="請輸入密碼"
                   value="${this.loginForm.password}"
                   oninput="authManager.loginForm.password = this.value"
@@ -258,7 +258,7 @@ export const authManager = {
               <button 
                 type="submit" 
                 data-loading="login"
-                class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                class="btn btn-primary w-full"
               >
                 登入
               </button>
@@ -271,33 +271,33 @@ export const authManager = {
           <form onsubmit="event.preventDefault(); authManager.register()">
             <div class="space-y-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">用戶名</label>
+                <label class="block text-sm font-medium text-base-content mb-1">用戶名</label>
                 <input 
                   type="text" 
                   id="register-username"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="input input-bordered w-full focus:input-primary"
                   placeholder="請輸入用戶名（至少3個字符）"
                   value="${this.registerForm.username}"
                   oninput="authManager.registerForm.username = this.value"
                 >
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">密碼</label>
+                <label class="block text-sm font-medium text-base-content mb-1">密碼</label>
                 <input 
                   type="password" 
                   id="register-password"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="input input-bordered w-full focus:input-primary"
                   placeholder="請輸入密碼（至少6個字符）"
                   value="${this.registerForm.password}"
                   oninput="authManager.registerForm.password = this.value"
                 >
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">確認密碼</label>
+                <label class="block text-sm font-medium text-base-content mb-1">確認密碼</label>
                 <input 
                   type="password" 
                   id="register-confirm"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="input input-bordered w-full focus:input-primary"
                   placeholder="請再次輸入密碼"
                   value="${this.registerForm.confirmPassword}"
                   oninput="authManager.registerForm.confirmPassword = this.value"
@@ -306,7 +306,7 @@ export const authManager = {
               <button 
                 type="submit" 
                 data-loading="register"
-                class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors"
+                class="btn btn-success w-full"
               >
                 註冊
               </button>
@@ -337,8 +337,8 @@ export const authManager = {
     const registerForm = document.getElementById('register-form')
 
     if (mode === 'login') {
-      loginTab.className = 'flex-1 py-3 px-4 text-center font-medium transition-colors text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-      registerTab.className = 'flex-1 py-3 px-4 text-center font-medium transition-colors text-gray-500 hover:text-gray-700'
+      loginTab.className = 'flex-1 py-3 px-4 text-center font-medium transition-colors text-primary border-b-2 border-primary bg-primary/10'
+      registerTab.className = 'flex-1 py-3 px-4 text-center font-medium transition-colors text-base-content/60 hover:text-base-content'
       loginForm.classList.remove('hidden')
       registerForm.classList.add('hidden')
       
@@ -347,8 +347,8 @@ export const authManager = {
         document.getElementById('login-username').focus()
       }, 100)
     } else {
-      loginTab.className = 'flex-1 py-3 px-4 text-center font-medium transition-colors text-gray-500 hover:text-gray-700'
-      registerTab.className = 'flex-1 py-3 px-4 text-center font-medium transition-colors text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+      loginTab.className = 'flex-1 py-3 px-4 text-center font-medium transition-colors text-base-content/60 hover:text-base-content'
+      registerTab.className = 'flex-1 py-3 px-4 text-center font-medium transition-colors text-primary border-b-2 border-primary bg-primary/10'
       loginForm.classList.add('hidden')
       registerForm.classList.remove('hidden')
       
