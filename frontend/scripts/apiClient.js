@@ -123,6 +123,14 @@ export const apiClient = {
     // 登出
     logout() {
       apiClient.clearToken()
+    },
+
+    // 修改密碼
+    async changePassword(passwordData) {
+      return await apiClient.request('/auth/change-password', {
+        method: 'PUT',
+        body: passwordData
+      })
     }
   },
 

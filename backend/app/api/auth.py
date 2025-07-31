@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.database.connection import get_db
 from app.models import User
-from app.schemas.user import UserCreate, UserResponse, UserLogin, Token
+from app.schemas.user import UserCreate, UserResponse, UserLogin, Token, PasswordChangeRequest
 from app.core.auth import create_access_token, get_current_active_user
 
 router = APIRouter(prefix="/auth", tags=["認證"])
@@ -69,3 +69,30 @@ async def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
 async def get_current_user_info(current_user: User = Depends(get_current_active_user)):
     """獲取當前用戶信息"""
     return current_user
+
+@router.put("/change-password")
+async def change_password(
+    password_data: PasswordChangeRequest,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """修改用戶密碼"""
+    # 驗證當前密碼
+    if not current_user.verify_password(password_data.current_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="當前密碼錯誤"
+        )
+    
+    # 檢查新密碼不能為空
+    if not password_data.new_password.strip():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="新密碼不能為空"
+        )
+    
+    # 更新密碼
+    current_user.hashed_password = User.get_password_hash(password_data.new_password)
+    db.commit()
+    
+    return {"message": "密碼修改成功"}

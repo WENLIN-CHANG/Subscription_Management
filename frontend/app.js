@@ -263,6 +263,10 @@ Alpine.data('subscriptionManager', () => ({
     authManager.logout()
   },
 
+  showChangePasswordDialog() {
+    authManager.showChangePasswordDialog()
+  },
+
   // 主題管理方法
   changeTheme(themeName) {
     if (themeManager.setTheme(themeName)) {
