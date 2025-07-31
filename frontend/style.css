@@ -104,6 +104,30 @@
   transform: scale(0.8) rotate(20deg);
 }
 
+/* 訂閱卡片響應式優化 */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1rem !important;
+  }
+  
+  .card-title {
+    font-size: 1rem !important;
+    line-height: 1.4 !important;
+  }
+}
+
+/* 確保文字不會溢出 */
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 卡片最小高度優化 */
+.card {
+  min-height: fit-content;
+}
+
 .theme_toggle_input:checked + .theme_toggle_slider .moon_icon {
   opacity: 1;
   transform: scale(1) rotate(0deg);
