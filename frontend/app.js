@@ -66,9 +66,50 @@ Alpine.data('subscriptionManager', () => ({
       // 檢查是否需要數據遷移
       migrationManager.checkAndPromptMigration()
       
+      // 檢查是否有需要恢復的表單資料（登入後）
+      this.checkAndRestoreFormData()
+      
     } catch (error) {
       console.error('初始化失敗:', error)
       stateManager.error.set(error, '初始化')
+    }
+  },
+
+  // 檢查並恢復表單資料
+  checkAndRestoreFormData() {
+    if (this.isLoggedIn) {
+      const restoreData = localStorage.getItem('restoreSubscriptionForm')
+      if (restoreData) {
+        try {
+          const formData = JSON.parse(restoreData)
+          
+          // 恢復表單資料
+          this.newSubscription = { ...formData }
+          
+          // 清除恢復資料
+          localStorage.removeItem('restoreSubscriptionForm')
+          
+          // 顯示提示訊息
+          stateManager.success.show(`已恢復您之前填寫的「${formData.name}」訂閱資料，您可以直接提交或繼續編輯`, '表單恢復')
+          
+          // 滾動到表單位置
+          setTimeout(() => {
+            const formElement = document.querySelector('form')
+            if (formElement) {
+              formElement.scrollIntoView({ behavior: 'smooth' })
+              // 聚焦到提交按鈕
+              const submitButton = formElement.querySelector('button[type="submit"]')
+              if (submitButton) {
+                submitButton.focus()
+              }
+            }
+          }, 1000)
+          
+        } catch (error) {
+          console.error('恢復表單資料失敗:', error)
+          localStorage.removeItem('restoreSubscriptionForm')
+        }
+      }
     }
   },
 
@@ -253,6 +294,36 @@ Alpine.data('subscriptionManager', () => ({
 
   isLightTheme() {
     return themeManager.isLightTheme()
+  },
+
+  // 導航滾動功能
+  scrollToSection(sectionId) {
+    // 如果是未登入用戶且點擊需要登入的功能，顯示登入提示
+    if (!this.isLoggedIn && (sectionId === 'subscriptions')) {
+      this.showLogin()
+      return
+    }
+    
+    const element = document.getElementById(sectionId)
+    if (element) {
+      // 考慮固定導航欄的高度 (約80px)
+      const navbarHeight = 80
+      const elementPosition = element.offsetTop - navbarHeight
+      
+      window.scrollTo({
+        top: elementPosition,
+        behavior: 'smooth'
+      })
+    }
+  },
+
+  // 範例資料相關方法
+  isSampleDataMode() {
+    return dataManager.isSampleDataMode()
+  },
+
+  getSampleDataInfo() {
+    return dataManager.getSampleDataInfo()
   }
 }))
 

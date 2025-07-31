@@ -210,6 +210,16 @@ export const authManager = {
     // 隱藏認證對話框
     this.hideAuthDialog()
     
+    // 檢查是否有待處理的訂閱資料
+    const pendingSubscription = localStorage.getItem('pendingSubscription')
+    if (pendingSubscription) {
+      // 清除待處理資料
+      localStorage.removeItem('pendingSubscription')
+      
+      // 存儲到一個特殊的鍵，讓頁面重新載入後可以恢復
+      localStorage.setItem('restoreSubscriptionForm', pendingSubscription)
+    }
+    
     // 重新載入數據
     window.location.reload()
   },

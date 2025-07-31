@@ -5,6 +5,15 @@ import { stateManager } from './stateManager.js'
 export const budgetManager = {
   // 打開預算設定
   openBudgetSetting(context) {
+    // 檢查是否已登入
+    if (!dataManager.isLoggedIn()) {
+      stateManager.success.show('請先登入以設定個人化的月度預算', '預算設定')
+      setTimeout(() => {
+        context.showLogin()
+      }, 1500)
+      return
+    }
+    
     context.tempBudget = context.monthlyBudget.toString()
     context.showBudgetSetting = true
   },

@@ -1,5 +1,6 @@
 import { apiClient } from './apiClient.js'
 import { DataMapper, SubscriptionFields } from './types.js'
+import { sampleData } from './sampleData.js'
 
 // 數據管理模塊 - 處理數據存儲操作
 export const dataManager = {
@@ -40,9 +41,14 @@ export const dataManager = {
         return stored ? JSON.parse(stored) : []
       }
     } else {
-      // 未登入時從本地存儲載入
+      // 未登入時載入範例資料，如果本地有資料則優先使用本地資料
       const stored = localStorage.getItem('subscriptions')
-      return stored ? JSON.parse(stored) : []
+      if (stored && stored !== '[]') {
+        return JSON.parse(stored)
+      } else {
+        // 返回範例資料供預覽
+        return sampleData.getSampleSubscriptions()
+      }
     }
   },
 
@@ -138,7 +144,12 @@ export const dataManager = {
       }
     } else {
       const stored = localStorage.getItem('monthlyBudget')
-      return stored ? parseFloat(stored) : 0
+      if (stored) {
+        return parseFloat(stored)
+      } else {
+        // 返回範例預算供預覽
+        return sampleData.getSampleBudget()
+      }
     }
   },
 
@@ -170,5 +181,19 @@ export const dataManager = {
       console.error('數據遷移失敗:', error)
       throw error
     }
+  },
+
+  // 檢查是否為範例資料模式
+  isSampleDataMode() {
+    if (this.isLoggedIn()) {
+      return false
+    }
+    const stored = localStorage.getItem('subscriptions')
+    return !stored || stored === '[]'
+  },
+
+  // 獲取範例資料資訊
+  getSampleDataInfo() {
+    return sampleData.getSampleDataInfo()
   }
 }

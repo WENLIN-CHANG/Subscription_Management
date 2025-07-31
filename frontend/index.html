@@ -15,6 +15,34 @@
         <h1 class="text-xl font-bold ml-4">訂閱管理系統</h1>
       </div>
       
+      <!-- 導航項目 -->
+      <div class="navbar-center hidden lg:flex">
+        <ul class="menu menu-horizontal px-1 space-x-2">
+          <li>
+            <a 
+              @click="scrollToSection('dashboard')" 
+              class="btn btn-ghost btn-sm"
+            >
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2V7"></path>
+              </svg>
+              儀表板
+            </a>
+          </li>
+          <li>
+            <a 
+              @click="scrollToSection('subscriptions')" 
+              class="btn btn-ghost btn-sm"
+            >
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+              </svg>
+              我的訂閱
+            </a>
+          </li>
+        </ul>
+      </div>
+      
       <div class="navbar-end">
         <!-- 主題切換器 -->
         <div class="flex items-center mr-2">
@@ -67,8 +95,44 @@
     <!-- 主要內容區域 -->
     <div class="container mx-auto px-4 py-8 max-w-4xl mt-20">
 
+    <!-- 範例資料提示卡片 -->
+    <div x-show="!isLoggedIn && isSampleDataMode()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform -translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="alert alert-info shadow-lg mb-6 backdrop-blur-sm border border-info/20">
+      <div class="w-full">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0">
+            <svg class="w-6 h-6 text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="flex-grow">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h3 class="font-bold text-base mb-2">🎯 體驗訂閱管理功能</h3>
+                <p class="text-sm opacity-90 mb-2">目前顯示的是範例資料，包含 <span class="font-semibold" x-text="getSampleDataInfo().totalServices"></span> 個熱門訂閱服務，讓您了解系統功能。</p>
+                <p class="text-xs opacity-75">登入後，您可以建立專屬的訂閱記錄並同步至雲端。</p>
+              </div>
+              <div class="flex gap-2 flex-shrink-0">
+                <button @click="showLogin()" class="btn btn-sm btn-outline btn-primary">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                  </svg>
+                  登入
+                </button>
+                <button @click="showRegister()" class="btn btn-sm btn-primary">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                  </svg>
+                  開始使用
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 月總支出顯示區域 -->
-    <div class="hero bg-gradient-to-br from-primary/10 to-secondary/10 rounded-3xl mb-8 backdrop-blur-sm">
+    <div id="dashboard" class="hero bg-gradient-to-br from-primary/10 to-secondary/10 rounded-3xl mb-8 backdrop-blur-sm">
       <div class="hero-content text-center py-12">
         <div class="max-w-md">
           <h1 class="text-base-content/70 text-xl mb-4">這個月你在訂閱服務上花了</h1>
@@ -87,11 +151,17 @@
                 <div class="card-body p-6">
                   <div class="flex justify-between items-center mb-4">
                     <h3 class="card-title text-base">月度預算</h3>
-                    <button @click="openBudgetSetting()" class="btn btn-ghost btn-sm">
+                    <button 
+                      @click="openBudgetSetting()" 
+                      class="btn btn-ghost btn-sm"
+                      :class="!isLoggedIn ? 'opacity-60' : ''"
+                      :title="!isLoggedIn ? '請先登入以調整預算設定' : '調整月度預算'"
+                    >
                       <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                       </svg>
                       調整
+                      <span x-show="!isLoggedIn" class="ml-1">🔒</span>
                     </button>
                   </div>
                   <div class="flex justify-between items-center mb-4">
@@ -119,11 +189,14 @@
               x-show="monthlyBudget <= 0" 
               @click="openBudgetSetting()"
               class="btn btn-outline btn-primary mt-6"
+              :class="!isLoggedIn ? 'opacity-60' : ''"
+              :title="!isLoggedIn ? '請先登入以設定個人化預算' : '設定月度預算'"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
               </svg>
               設定月度預算
+              <span x-show="!isLoggedIn" class="ml-2">🔒</span>
             </button>
           </div>
         </div>
@@ -199,20 +272,6 @@
     <!-- 新增/編輯訂閱表單 -->
     <div class="card bg-base-100 shadow-xl mb-8">
       <div class="card-body">
-        <!-- 未登入提示 -->
-        <div x-show="!isLoggedIn" class="alert alert-info mb-6">
-          <svg class="w-6 h-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <div>
-            <h3 class="font-bold">需要登入才能管理訂閱</h3>
-            <div class="text-sm">請先登入或註冊帳號，以便將訂閱資料保存到雲端。</div>
-            <div class="mt-2">
-              <button @click="showLogin()" class="btn btn-sm btn-outline mr-2">登入</button>
-              <button @click="showRegister()" class="btn btn-sm btn-primary">註冊</button>
-            </div>
-          </div>
-        </div>
 
         <div class="flex justify-between items-center mb-6">
           <h2 class="card-title text-2xl" x-text="isEditing ? '編輯訂閱服務' : '新增訂閱服務'">新增訂閱服務</h2>
@@ -227,18 +286,22 @@
             取消編輯
           </button>
         </div>
-        <form @submit.prevent="isEditing ? updateSubscription() : addSubscription()" class="space-y-6" :class="!isLoggedIn ? 'opacity-50 pointer-events-none' : ''">
+        <form @submit.prevent="isEditing ? updateSubscription() : addSubscription()" class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- 服務名稱 -->
             <div class="form-control w-full">
               <label class="label">
-                <span class="label-text font-medium">服務名稱</span>
+                <span class="label-text font-medium">
+                  服務名稱
+                  <span x-show="!isLoggedIn" class="ml-1 text-xs opacity-60" title="需要登入才能保存">🔒</span>
+                </span>
               </label>
               <input 
                 type="text" 
                 x-model="newSubscription.name"
                 placeholder="例如：Netflix, Spotify"
                 class="input input-bordered w-full focus:input-primary"
+                :class="!isLoggedIn ? 'bg-base-200/50' : ''"
                 required
               >
             </div>
@@ -246,7 +309,10 @@
             <!-- 價格 -->
             <div class="form-control w-full">
               <label class="label">
-                <span class="label-text font-medium">價格</span>
+                <span class="label-text font-medium">
+                  價格
+                  <span x-show="!isLoggedIn" class="ml-1 text-xs opacity-60" title="需要登入才能保存">🔒</span>
+                </span>
               </label>
               <input 
                 type="number" 
@@ -254,6 +320,7 @@
                 min="0"
                 step="0.01"
                 class="input input-bordered w-full focus:input-primary"
+                :class="!isLoggedIn ? 'bg-base-200/50' : ''"
                 required
               >
             </div>
@@ -261,11 +328,15 @@
             <!-- 訂閱週期 -->
             <div class="form-control w-full">
               <label class="label">
-                <span class="label-text font-medium">訂閱週期</span>
+                <span class="label-text font-medium">
+                  訂閱週期
+                  <span x-show="!isLoggedIn" class="ml-1 text-xs opacity-60" title="需要登入才能保存">🔒</span>
+                </span>
               </label>
               <select 
                 x-model="newSubscription.cycle"
                 class="select select-bordered w-full focus:select-primary"
+                :class="!isLoggedIn ? 'bg-base-200/50' : ''"
                 required
               >
                 <option value="monthly">每月</option>
@@ -277,11 +348,15 @@
             <!-- 貨幣選擇 -->
             <div class="form-control w-full">
               <label class="label">
-                <span class="label-text font-medium">貨幣</span>
+                <span class="label-text font-medium">
+                  貨幣
+                  <span x-show="!isLoggedIn" class="ml-1 text-xs opacity-60" title="需要登入才能保存">🔒</span>
+                </span>
               </label>
               <select 
                 x-model="newSubscription.currency"
                 class="select select-bordered w-full focus:select-primary"
+                :class="!isLoggedIn ? 'bg-base-200/50' : ''"
                 required
               >
                 <option value="TWD">🇹🇼 台幣 (TWD)</option>
@@ -292,11 +367,15 @@
             <!-- 服務分類 -->
             <div class="form-control w-full">
               <label class="label">
-                <span class="label-text font-medium">服務分類</span>
+                <span class="label-text font-medium">
+                  服務分類
+                  <span x-show="!isLoggedIn" class="ml-1 text-xs opacity-60" title="需要登入才能保存">🔒</span>
+                </span>
               </label>
               <select 
                 x-model="newSubscription.category"
                 class="select select-bordered w-full focus:select-primary"
+                :class="!isLoggedIn ? 'bg-base-200/50' : ''"
                 required
               >
                 <option value="">請選擇分類</option>
@@ -314,12 +393,16 @@
             <!-- 開始日期 -->
             <div class="form-control w-full md:col-span-2">
               <label class="label">
-                <span class="label-text font-medium">開始日期</span>
+                <span class="label-text font-medium">
+                  開始日期
+                  <span x-show="!isLoggedIn" class="ml-1 text-xs opacity-60" title="需要登入才能保存">🔒</span>
+                </span>
               </label>
               <input 
                 type="date" 
                 x-model="newSubscription.startDate"
                 class="input input-bordered w-full focus:input-primary"
+                :class="!isLoggedIn ? 'bg-base-200/50' : ''"
                 required
               >
             </div>
@@ -330,7 +413,6 @@
               type="submit"
               class="btn btn-primary flex-1"
               data-loading="addSubscription"
-              :disabled="!isLoggedIn"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" x-show="!isEditing"></path>
@@ -403,7 +485,7 @@
     </div>
 
     <!-- 訂閱項目列表 -->
-    <div class="mb-8">
+    <div id="subscriptions" class="mb-8">
       <div class="flex items-center gap-3 mb-6">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
