@@ -2,6 +2,7 @@ import { apiClient } from './apiClient.js'
 import { stateManager } from '../ui/stateManager.js'
 import { migrationManager } from '../data/migrationManager.js'
 import { dataManager } from '../data/dataManager.js'
+import { InputValidator } from '../utils/inputValidator.js'
 
 // 認證管理器
 export const authManager = {
@@ -49,39 +50,37 @@ export const authManager = {
 
   // 驗證登入表單
   validateLoginForm() {
-    if (!this.loginForm.username.trim()) {
-      stateManager.error.set('請輸入用戶名', '登入驗證')
+    const validation = InputValidator.validateLoginForm(this.loginForm)
+    
+    if (!validation.isValid) {
+      // 顯示第一個錯誤
+      const firstError = Object.values(validation.errors)[0]?.[0]
+      if (firstError) {
+        stateManager.error.set(firstError, '登入驗證')
+      }
       return false
     }
-    if (!this.loginForm.password) {
-      stateManager.error.set('請輸入密碼', '登入驗證')
-      return false
-    }
+    
+    // 更新表單數據為清理後的數據
+    this.loginForm = { ...this.loginForm, ...validation.cleanData }
     return true
   },
 
   // 驗證註冊表單
   validateRegisterForm() {
-    if (!this.registerForm.username.trim()) {
-      stateManager.error.set('請輸入用戶名', '註冊驗證')
+    const validation = InputValidator.validateRegistrationForm(this.registerForm)
+    
+    if (!validation.isValid) {
+      // 顯示第一個錯誤
+      const firstError = Object.values(validation.errors)[0]?.[0]
+      if (firstError) {
+        stateManager.error.set(firstError, '註冊驗證')
+      }
       return false
     }
-    if (this.registerForm.username.length < 3) {
-      stateManager.error.set('用戶名至少需要3個字符', '註冊驗證')
-      return false
-    }
-    if (!this.registerForm.password) {
-      stateManager.error.set('請輸入密碼', '註冊驗證')
-      return false
-    }
-    if (this.registerForm.password.length < 6) {
-      stateManager.error.set('密碼至少需要6個字符', '註冊驗證')
-      return false
-    }
-    if (this.registerForm.password !== this.registerForm.confirmPassword) {
-      stateManager.error.set('兩次輸入的密碼不一致', '註冊驗證')
-      return false
-    }
+    
+    // 更新表單數據為清理後的數據
+    this.registerForm = { ...this.registerForm, ...validation.cleanData }
     return true
   },
 

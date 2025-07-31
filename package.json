@@ -10,12 +10,23 @@
     "dev": "concurrently --names \"FRONTEND,BACKEND\" --prefix-colors \"blue,green\" \"npm run frontend\" \"npm run backend\"",
     "frontend": "vite",
     "backend": "cd backend && python3 run_dev.py",
-    "backend-only": "cd backend && python3 run_dev.py"
+    "backend-only": "cd backend && python3 run_dev.py",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "alpinejs": "^3.14.9",
     "concurrently": "^9.2.0",
-    "daisyui": "^5.0.50"
+    "daisyui": "^5.0.50",
+    "vitest": "^2.1.8",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@vitest/ui": "^2.1.8",
+    "@vitest/coverage-v8": "^2.1.8",
+    "jsdom": "^25.0.1",
+    "happy-dom": "^15.11.6"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",

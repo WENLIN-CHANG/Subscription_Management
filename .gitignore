@@ -115,3 +115,10 @@ venv.bak/
 
 # Claude Code
 .claude/
+
+# Testing
+coverage/
+*.lcov
+.nyc_output
+test-results/
+playwright-report/

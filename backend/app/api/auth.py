@@ -1,15 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.database.connection import get_db
 from app.models import User
 from app.schemas.user import UserCreate, UserResponse, UserLogin, Token, PasswordChangeRequest
 from app.core.auth import create_access_token, get_current_active_user
+from app.core.rate_limiter import auth_rate_limit, password_change_rate_limit, read_rate_limit
+from app.core.logging_config import SecurityEventLogger
 
 router = APIRouter(prefix="/auth", tags=["認證"])
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def register(user: UserCreate, db: Session = Depends(get_db)):
+@auth_rate_limit()
+async def register(request: Request, user: UserCreate, db: Session = Depends(get_db)):
     """用戶註冊"""
     # 檢查用戶名是否已存在
     if db.query(User).filter(User.username == user.username).first():
@@ -32,7 +35,8 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
     return db_user
 
 @router.post("/login", response_model=Token)
-async def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
+@auth_rate_limit()
+async def login(request: Request, user_credentials: UserLogin, db: Session = Depends(get_db)):
     """用戶登入"""
     # 驗證用戶
     user = db.query(User).filter(User.username == user_credentials.username).first()
@@ -66,12 +70,15 @@ async def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
     }
 
 @router.get("/me", response_model=UserResponse)
-async def get_current_user_info(current_user: User = Depends(get_current_active_user)):
+@read_rate_limit()
+async def get_current_user_info(request: Request, current_user: User = Depends(get_current_active_user)):
     """獲取當前用戶信息"""
     return current_user
 
 @router.put("/change-password")
+@password_change_rate_limit()
 async def change_password(
+    request: Request,
     password_data: PasswordChangeRequest,
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)

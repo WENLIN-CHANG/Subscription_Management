@@ -1,16 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from typing import List
 from app.database.connection import get_db
 from app.models import User, Subscription
 from app.schemas.subscription import SubscriptionCreate, SubscriptionUpdate, SubscriptionResponse
 from app.core.auth import get_current_active_user
+from app.core.rate_limiter import read_rate_limit, create_rate_limit, general_rate_limit
 from app.services.exchange_rate_service import ExchangeRateService
 
 router = APIRouter(prefix="/subscriptions", tags=["訂閱管理"])
 
 @router.get("/", response_model=List[SubscriptionResponse])
+@read_rate_limit()
 async def get_subscriptions(
+    request: Request,
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
@@ -21,7 +24,9 @@ async def get_subscriptions(
     return subscriptions
 
 @router.post("/", response_model=SubscriptionResponse, status_code=status.HTTP_201_CREATED)
+@create_rate_limit()
 async def create_subscription(
+    request: Request,
     subscription: SubscriptionCreate,
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
