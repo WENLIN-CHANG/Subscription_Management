@@ -36,6 +36,9 @@ Alpine.data('subscriptionManager', () => ({
   
   // 主題管理狀態
   currentTheme: 'corporate',
+  
+  // 響應式導航狀態
+  mobileMenuOpen: false,
 
   // 初始化
   async init() {
@@ -286,6 +289,21 @@ Alpine.data('subscriptionManager', () => ({
 
   getAvailableThemes() {
     return themeManager.getAvailableThemes()
+  },
+
+  // 響應式導航方法
+  toggleMobileMenu() {
+    this.mobileMenuOpen = !this.mobileMenuOpen
+  },
+
+  closeMobileMenu() {
+    this.mobileMenuOpen = false
+  },
+
+  // 選單項目點擊時關閉選單並滾動到指定區域
+  navigateAndCloseMobile(sectionId) {
+    this.closeMobileMenu()
+    this.scrollToSection(sectionId)
   },
 
   getCurrentThemeInfo() {

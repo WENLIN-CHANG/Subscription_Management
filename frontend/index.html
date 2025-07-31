@@ -12,11 +12,30 @@
     <!-- 固定頂部導航欄 -->
     <div class="navbar bg-base-100 shadow-lg fixed top-0 left-0 right-0 z-40">
       <div class="navbar-start">
-        <h1 class="text-xl font-bold ml-4">訂閱管理系統</h1>
+        <!-- 漢堡選單按鈕 (手機版顯示) -->
+        <button 
+          @click="toggleMobileMenu()"
+          class="btn btn-ghost btn-square md:hidden mr-2"
+          :class="mobileMenuOpen ? 'bg-base-200' : ''"
+        >
+          <!-- 漢堡圖示 -->
+          <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+          <!-- 關閉圖示 -->
+          <svg x-show="mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+        
+        <h1 class="text-xl font-bold cursor-pointer hover:text-primary transition-colors" @click="window.scrollTo({top: 0, behavior: 'smooth'})">
+          <span class="hidden sm:inline">訂閱管理系統</span>
+          <span class="sm:hidden">訂閱管理</span>
+        </h1>
       </div>
       
-      <!-- 導航項目 -->
-      <div class="navbar-center hidden lg:flex">
+      <!-- 導航項目 (平板版以上顯示) -->
+      <div class="navbar-center hidden md:flex">
         <ul class="menu menu-horizontal px-1 space-x-2">
           <li>
             <a 
@@ -63,14 +82,15 @@
         </div>
 
         <!-- 已登入狀態 -->
-        <div x-show="isLoggedIn" class="flex items-center space-x-4 mr-4">
+        <div x-show="isLoggedIn" class="flex items-center space-x-2 md:space-x-4 mr-2 md:mr-4">
           <div class="flex items-center space-x-2">
             <div class="avatar placeholder">
               <div class="bg-primary text-primary-content rounded-full w-8">
                 <span class="text-xs" x-text="currentUser?.username?.charAt(0).toUpperCase()">U</span>
               </div>
             </div>
-            <span class="text-sm" x-text="currentUser?.username">用戶</span>
+            <!-- 在小螢幕隱藏用戶名 -->
+            <span class="text-sm hidden sm:inline" x-text="currentUser?.username">用戶</span>
           </div>
           <div class="dropdown dropdown-end">
             <label tabindex="0" class="btn btn-ghost btn-sm">
@@ -93,9 +113,59 @@
         </div>
         
         <!-- 未登入狀態 -->
-        <div x-show="!isLoggedIn" class="flex items-center space-x-2 mr-4">
-          <button @click="showLogin()" class="btn btn-ghost btn-sm">登入</button>
-          <button @click="showRegister()" class="btn btn-primary btn-sm">註冊</button>
+        <div x-show="!isLoggedIn" class="flex items-center space-x-1 sm:space-x-2 mr-2 md:mr-4">
+          <button @click="showLogin()" class="btn btn-ghost btn-sm text-xs sm:text-sm">登入</button>
+          <button @click="showRegister()" class="btn btn-primary btn-sm text-xs sm:text-sm">註冊</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 移動端下拉選單 -->
+    <div 
+      x-show="mobileMenuOpen" 
+      x-transition:enter="transition ease-out duration-200"
+      x-transition:enter-start="opacity-0 transform -translate-y-2"
+      x-transition:enter-end="opacity-100 transform translate-y-0"
+      x-transition:leave="transition ease-in duration-150"
+      x-transition:leave-start="opacity-100 transform translate-y-0"
+      x-transition:leave-end="opacity-0 transform -translate-y-2"
+      class="fixed top-16 left-0 right-0 z-30 md:hidden"
+    >
+      <!-- 遮罩 -->
+      <div 
+        @click="closeMobileMenu()" 
+        class="fixed inset-0 bg-black bg-opacity-25"
+      ></div>
+      
+      <!-- 選單內容 -->
+      <div class="relative bg-base-100 shadow-lg border-t border-base-300">
+        <div class="container mx-auto px-4">
+          <nav class="py-4">
+            <ul class="space-y-2">
+              <li>
+                <a 
+                  @click="navigateAndCloseMobile('dashboard')" 
+                  class="flex items-center px-4 py-3 rounded-lg hover:bg-base-200 transition-colors cursor-pointer"
+                >
+                  <svg class="w-5 h-5 mr-3 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2V7"></path>
+                  </svg>
+                  <span class="font-medium">儀表板</span>
+                </a>
+              </li>
+              <li>
+                <a 
+                  @click="navigateAndCloseMobile('subscriptions')" 
+                  class="flex items-center px-4 py-3 rounded-lg hover:bg-base-200 transition-colors cursor-pointer"
+                >
+                  <svg class="w-5 h-5 mr-3 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012 2v2M7 7h10"></path>
+                  </svg>
+                  <span class="font-medium">我的訂閱</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </div>
@@ -278,7 +348,7 @@
     </div>
 
     <!-- 新增/編輯訂閱表單 -->
-    <div class="card bg-base-100 shadow-xl mb-8">
+    <div x-show="isLoggedIn" class="card bg-base-100 shadow-xl mb-8">
       <div class="card-body">
 
         <div class="flex justify-between items-center mb-6">
