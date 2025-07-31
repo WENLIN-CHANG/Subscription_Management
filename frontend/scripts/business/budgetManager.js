@@ -1,6 +1,6 @@
 // 預算管理模塊 - 預算管理相關功能
-import { dataManager } from './dataManager.js' 
-import { stateManager } from './stateManager.js'
+import { dataManager } from '../data/dataManager.js' 
+import { stateManager } from '../ui/stateManager.js'
 
 export const budgetManager = {
   // 打開預算設定

@@ -1,6 +1,6 @@
 // 統計分析模塊 - 統計分析和到期提醒
-import { calculationUtils } from './calculationUtils.js'
-import { uiUtils } from './uiUtils.js'
+import { calculationUtils } from '../utils/calculationUtils.js'
+import { uiUtils } from '../ui/uiUtils.js'
 
 export const statisticsManager = {
   // 獲取即將到期的訂閱

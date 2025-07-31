@@ -1,5 +1,5 @@
 // UI 工具模塊 - UI 樣式、動畫效果、顏色生成
-import { calculationUtils } from './calculationUtils.js'
+import { calculationUtils } from '../utils/calculationUtils.js'
 
 export const uiUtils = {
   // 獲取分類名稱

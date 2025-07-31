@@ -1,7 +1,7 @@
 import { apiClient } from './apiClient.js'
-import { stateManager } from './stateManager.js'
-import { migrationManager } from './migrationManager.js'
-import { dataManager } from './dataManager.js'
+import { stateManager } from '../ui/stateManager.js'
+import { migrationManager } from '../data/migrationManager.js'
+import { dataManager } from '../data/dataManager.js'
 
 // 認證管理器
 export const authManager = {

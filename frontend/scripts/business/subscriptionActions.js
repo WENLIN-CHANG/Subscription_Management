@@ -1,7 +1,7 @@
 // 訂閱操作模塊 - 訂閱的 CRUD 操作和表單驗證
-import { dataManager } from './dataManager.js'
-import { stateManager } from './stateManager.js'
-import { SubscriptionFields } from './types.js'
+import { dataManager } from '../data/dataManager.js'
+import { stateManager } from '../ui/stateManager.js'
+import { SubscriptionFields } from '../utils/types.js'
 
 export const subscriptionActions = {
   // 表單驗證

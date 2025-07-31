@@ -1,5 +1,5 @@
 import { dataManager } from './dataManager.js'
-import { stateManager } from './stateManager.js'
+import { stateManager } from '../ui/stateManager.js'
 
 // 數據遷移管理器
 export const migrationManager = {
