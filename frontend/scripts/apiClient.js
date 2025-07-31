@@ -54,7 +54,14 @@ export const apiClient = {
       if (response.status === 401) {
         // 認證失敗，清除令牌
         this.clearToken()
-        throw new Error('請重新登入')
+        
+        // 嘗試解析後端錯誤訊息
+        const errorData = await response.json().catch(() => null)
+        if (errorData && errorData.detail) {
+          throw new Error(errorData.detail)
+        } else {
+          throw new Error('認證失敗，請檢查登入資訊')
+        }
       }
 
       if (!response.ok) {

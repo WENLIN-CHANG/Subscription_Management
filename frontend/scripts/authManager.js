@@ -112,6 +112,22 @@ export const authManager = {
 
     } catch (error) {
       console.error('登入失敗:', error)
+      
+      // 根據錯誤類型提供更好的用戶提示
+      let errorMessage = error.message
+      
+      // 如果是用戶不存在，提供註冊引導
+      if (error.message && error.message.includes('用戶不存在')) {
+        // 自動切換到註冊頁面的提示
+        setTimeout(() => {
+          const shouldSwitch = confirm('是否切換到註冊頁面？')
+          if (shouldSwitch) {
+            this.switchAuthMode('register')
+          }
+        }, 1500)
+      }
+      
+      stateManager.error.set(errorMessage, '用戶登入')
       return false
     }
   },
