@@ -4,6 +4,10 @@ import { stateManager } from '../ui/stateManager.js'
 import { SubscriptionFields } from '../utils/types.js'
 
 export const subscriptionActions = {
+  // 更新全局狀態的便利方法
+  getStore() {
+    return window.Alpine ? window.Alpine.store('app') : null
+  },
   // 表單驗證
   validateForm(newSubscription) {
     if (!newSubscription.name.trim()) {
@@ -77,8 +81,11 @@ export const subscriptionActions = {
         })
         
         // 重新載入數據
-        context.subscriptions = await dataManager.loadSubscriptions()
-        context.calculateMonthlyTotal()
+        const subscriptions = await dataManager.loadSubscriptions()
+        const store = this.getStore()
+        if (store) {
+          store.setSubscriptions(subscriptions)
+        }
       }, {
         errorContext: '添加訂閱',
         successMessage: `成功添加訂閱：${context.newSubscription.name}`,
@@ -115,14 +122,20 @@ export const subscriptionActions = {
         if (dataManager.isLoggedIn()) {
           await dataManager.deleteSubscription(id)
           // 重新載入數據
-          context.subscriptions = await dataManager.loadSubscriptions()
+          const subscriptions = await dataManager.loadSubscriptions()
+          const store = this.getStore()
+          if (store) {
+            store.setSubscriptions(subscriptions)
+          }
         } else {
           // 離線模式：從本地刪除
-          context.subscriptions = context.subscriptions.filter(sub => sub.id !== id)
-          await dataManager.saveSubscriptions(context.subscriptions)
+          const store = this.getStore()
+          if (store) {
+            const newSubscriptions = store.subscriptions.filter(sub => sub.id !== id)
+            store.setSubscriptions(newSubscriptions)
+            await dataManager.saveSubscriptions(newSubscriptions)
+          }
         }
-        
-        context.calculateMonthlyTotal()
       }, {
         errorContext: '刪除訂閱',
         successMessage: `成功刪除訂閱：${subscription.name}`,

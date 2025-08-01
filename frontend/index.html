@@ -8,27 +8,28 @@
   <script type="module" src="app.js"></script>
 </head>
 <body class="bg-base-200 min-h-screen">
-  <div x-data="subscriptionManager">
+  <div x-data="appManager">
     <!-- 固定頂部導航欄 -->
-    <div class="navbar bg-base-100 shadow-lg fixed top-0 left-0 right-0 z-40">
+    <div x-data="navigationManager" class="navbar bg-base-100 shadow-lg fixed top-0 left-0 right-0 z-40">
       <div class="navbar-start">
         <!-- 漢堡選單按鈕 (手機版顯示) -->
         <button 
           @click="toggleMobileMenu()"
           class="btn btn-ghost btn-square md:hidden mr-2"
-          :class="mobileMenuOpen ? 'bg-base-200' : ''"
+          :class="$store.app.mobileMenuOpen ? 'bg-base-200' : ''"
+          data-testid="mobile-menu-toggle"
         >
           <!-- 漢堡圖示 -->
-          <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg x-show="!$store.app.mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
           </svg>
           <!-- 關閉圖示 -->
-          <svg x-show="mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg x-show="$store.app.mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
         
-        <h1 class="text-xl font-bold cursor-pointer hover:text-primary transition-colors" @click="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <h1 class="text-xl font-bold cursor-pointer hover:text-primary transition-colors" @click="scrollToTop()" data-testid="app-title">
           <span class="hidden sm:inline">訂閱管理系統</span>
           <span class="sm:hidden">訂閱管理</span>
         </h1>
@@ -41,6 +42,7 @@
             <a 
               @click="scrollToSection('dashboard')" 
               class="btn btn-ghost btn-sm"
+              data-testid="nav-dashboard"
             >
               <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2V7"></path>
@@ -52,6 +54,7 @@
             <a 
               @click="scrollToSection('subscriptions')" 
               class="btn btn-ghost btn-sm"
+              data-testid="nav-subscriptions"
             >
               <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
@@ -72,6 +75,7 @@
                 :checked="getCurrentThemeType() === 'dark'"
                 @change="toggleTheme()"
                 class="theme_toggle_input"
+                data-testid="theme-toggle"
               >
               <span class="theme_toggle_slider">
                 <span class="theme_toggle_icon sun_icon">☀️</span>
@@ -82,47 +86,47 @@
         </div>
 
         <!-- 已登入狀態 -->
-        <div x-show="isLoggedIn" class="flex items-center space-x-2 md:space-x-4 mr-2 md:mr-4">
+        <div x-show="$store.app.isLoggedIn" class="flex items-center space-x-2 md:space-x-4 mr-2 md:mr-4" data-testid="user-menu">
           <div class="flex items-center space-x-2">
             <div class="avatar placeholder">
               <div class="bg-primary text-primary-content rounded-full w-8">
-                <span class="text-xs" x-text="currentUser?.username?.charAt(0).toUpperCase()">U</span>
+                <span class="text-xs" x-text="$store.app.currentUser?.username?.charAt(0).toUpperCase()">U</span>
               </div>
             </div>
             <!-- 在小螢幕隱藏用戶名 -->
-            <span class="text-sm hidden sm:inline" x-text="currentUser?.username">用戶</span>
+            <span class="text-sm hidden sm:inline" x-text="$store.app.currentUser?.username">用戶</span>
           </div>
           <div class="dropdown dropdown-end">
-            <label tabindex="0" class="btn btn-ghost btn-sm">
+            <label tabindex="0" class="btn btn-ghost btn-sm" data-testid="user-dropdown-trigger">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
             </label>
             <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40">
               <li>
-                <a @click="showChangePasswordDialog()">
+                <a @click="showChangePasswordDialog()" data-testid="change-password-btn">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                   </svg>
                   修改密碼
                 </a>
               </li>
-              <li><a @click="logout()">登出</a></li>
+              <li><a @click="logout()" data-testid="logout-btn">登出</a></li>
             </ul>
           </div>
         </div>
         
         <!-- 未登入狀態 -->
-        <div x-show="!isLoggedIn" class="flex items-center space-x-1 sm:space-x-2 mr-2 md:mr-4">
-          <button @click="showLogin()" class="btn btn-ghost btn-sm text-xs sm:text-sm">登入</button>
-          <button @click="showRegister()" class="btn btn-primary btn-sm text-xs sm:text-sm">註冊</button>
+        <div x-show="!$store.app.isLoggedIn" class="flex items-center space-x-1 sm:space-x-2 mr-2 md:mr-4" data-testid="auth-buttons">
+          <button @click="showLogin()" class="btn btn-ghost btn-sm text-xs sm:text-sm" data-testid="login-btn">登入</button>
+          <button @click="showRegister()" class="btn btn-primary btn-sm text-xs sm:text-sm" data-testid="register-btn">註冊</button>
         </div>
       </div>
     </div>
 
     <!-- 移動端下拉選單 -->
     <div 
-      x-show="mobileMenuOpen" 
+      x-show="$store.app.mobileMenuOpen" 
       x-transition:enter="transition ease-out duration-200"
       x-transition:enter-start="opacity-0 transform -translate-y-2"
       x-transition:enter-end="opacity-100 transform translate-y-0"
@@ -146,6 +150,7 @@
                 <a 
                   @click="navigateAndCloseMobile('dashboard')" 
                   class="flex items-center px-4 py-3 rounded-lg hover:bg-base-200 transition-colors cursor-pointer"
+                  data-testid="mobile-nav-dashboard"
                 >
                   <svg class="w-5 h-5 mr-3 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2V7"></path>
@@ -157,6 +162,7 @@
                 <a 
                   @click="navigateAndCloseMobile('subscriptions')" 
                   class="flex items-center px-4 py-3 rounded-lg hover:bg-base-200 transition-colors cursor-pointer"
+                  data-testid="mobile-nav-subscriptions"
                 >
                   <svg class="w-5 h-5 mr-3 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012 2v2M7 7h10"></path>
@@ -174,7 +180,7 @@
     <div class="container mx-auto px-4 py-8 max-w-4xl mt-20">
 
     <!-- 範例資料提示卡片 -->
-    <div x-show="!isLoggedIn && isSampleDataMode()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform -translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="alert alert-info shadow-lg mb-6 backdrop-blur-sm border border-info/20">
+    <div x-data="subscriptionFormManager" x-show="!$store.app.isLoggedIn && isSampleDataMode()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform -translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="alert alert-info shadow-lg mb-6 backdrop-blur-sm border border-info/20" data-testid="sample-data-alert">
       <div class="w-full">
         <div class="flex items-start gap-4">
           <div class="flex-shrink-0">
@@ -190,13 +196,13 @@
                 <p class="text-xs opacity-75">登入後，您可以建立專屬的訂閱記錄並同步至雲端。</p>
               </div>
               <div class="flex gap-2 flex-shrink-0">
-                <button @click="showLogin()" class="btn btn-sm btn-outline btn-primary">
+                <button @click="showLogin()" class="btn btn-sm btn-outline btn-primary" data-testid="sample-alert-login-btn">
                   <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
                   </svg>
                   登入
                 </button>
-                <button @click="showRegister()" class="btn btn-sm btn-primary">
+                <button @click="showRegister()" class="btn btn-sm btn-primary" data-testid="sample-alert-register-btn">
                   <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                   </svg>
@@ -210,21 +216,21 @@
     </div>
 
     <!-- 月總支出顯示區域 -->
-    <div id="dashboard" class="hero bg-gradient-to-br from-primary/10 to-secondary/10 rounded-3xl mb-8 backdrop-blur-sm">
+    <div x-data="dashboardManager" id="dashboard" class="hero bg-gradient-to-br from-primary/10 to-secondary/10 rounded-3xl mb-8 backdrop-blur-sm" data-testid="dashboard">
       <div class="hero-content text-center py-12">
         <div class="max-w-md">
           <h1 class="text-base-content/70 text-xl mb-4">這個月你在訂閱服務上花了</h1>
-          <div class="text-7xl md:text-8xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-6" x-text="formatCurrency(monthlyTotal)">NT$0</div>
+          <div class="text-7xl md:text-8xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-6" x-text="formatCurrency($store.app.monthlyTotal)" data-testid="monthly-total">NT$0</div>
           <div class="space-y-3">
             <div class="stats shadow-lg bg-base-100/80 backdrop-blur-sm">
               <div class="stat">
                 <div class="stat-title">年度預估支出</div>
-                <div class="stat-value text-2xl text-error" x-text="formatCurrency(monthlyTotal * 12)">NT$0</div>
+                <div class="stat-value text-2xl text-error" x-text="formatCurrency($store.app.monthlyTotal * 12)" data-testid="yearly-total">NT$0</div>
               </div>
             </div>
         
             <!-- 預算設定和狀態 -->
-            <div x-show="monthlyBudget > 0" class="mt-6">
+            <div x-show="$store.app.monthlyBudget > 0" class="mt-6">
               <div class="card bg-base-100 shadow-xl backdrop-blur-sm border border-base-300/50">
                 <div class="card-body p-6">
                   <div class="flex justify-between items-center mb-4">
@@ -232,18 +238,19 @@
                     <button 
                       @click="openBudgetSetting()" 
                       class="btn btn-ghost btn-sm"
-                      :class="!isLoggedIn ? 'opacity-60' : ''"
-                      :title="!isLoggedIn ? '請先登入以調整預算設定' : '調整月度預算'"
+                      :class="!$store.app.isLoggedIn ? 'opacity-60' : ''"
+                      :title="!$store.app.isLoggedIn ? '請先登入以調整預算設定' : '調整月度預算'"
+                      data-testid="budget-adjust-btn"
                     >
                       <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                       </svg>
                       調整
-                      <span x-show="!isLoggedIn" class="ml-1">🔒</span>
+                      <span x-show="!$store.app.isLoggedIn" class="ml-1">🔒</span>
                     </button>
                   </div>
                   <div class="flex justify-between items-center mb-4">
-                    <span class="text-2xl font-bold" x-text="formatCurrency(monthlyBudget)"></span>
+                    <span class="text-2xl font-bold" x-text="formatCurrency($store.app.monthlyBudget)" data-testid="budget-amount"></span>
                     <div class="badge badge-lg" :class="getBudgetStatus() === 'over' ? 'badge-error' : getBudgetStatus() === 'warning' ? 'badge-warning' : 'badge-success'" x-text="getBudgetStatusText()"></div>
                   </div>
                   <div class="mb-4">
@@ -252,29 +259,31 @@
                       :class="getBudgetStatus() === 'over' ? 'progress-error' : getBudgetStatus() === 'warning' ? 'progress-warning' : 'progress-success'"
                       :value="Math.min(getBudgetUsagePercentage(), 100)" 
                       max="100"
+                      data-testid="budget-progress"
                     ></progress>
                   </div>
                   <div class="flex justify-between text-sm opacity-70">
                     <span x-text="`已使用 ${getBudgetUsagePercentage().toFixed(1)}%`"></span>
                     <span x-show="getBudgetStatus() !== 'over'" x-text="`剩餘 ${formatCurrency(getRemainingBudget())}`"></span>
-                    <span x-show="getBudgetStatus() === 'over'" x-text="`超支 ${formatCurrency(monthlyTotal - monthlyBudget)}`" class="text-error"></span>
+                    <span x-show="getBudgetStatus() === 'over'" x-text="`超支 ${formatCurrency($store.app.monthlyTotal - $store.app.monthlyBudget)}`" class="text-error"></span>
                   </div>
                 </div>
               </div>
             </div>
             
             <button 
-              x-show="monthlyBudget <= 0" 
+              x-show="$store.app.monthlyBudget <= 0" 
               @click="openBudgetSetting()"
               class="btn btn-outline btn-primary mt-6"
-              :class="!isLoggedIn ? 'opacity-60' : ''"
-              :title="!isLoggedIn ? '請先登入以設定個人化預算' : '設定月度預算'"
+              :class="!$store.app.isLoggedIn ? 'opacity-60' : ''"
+              :title="!$store.app.isLoggedIn ? '請先登入以設定個人化預算' : '設定月度預算'"
+              data-testid="set-budget-btn"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
               </svg>
               設定月度預算
-              <span x-show="!isLoggedIn" class="ml-2">🔒</span>
+              <span x-show="!$store.app.isLoggedIn" class="ml-2">🔒</span>
             </button>
           </div>
         </div>
@@ -282,7 +291,7 @@
     </div>
 
     <!-- 預算設定彈窗 -->
-    <div class="modal" :class="showBudgetSetting ? 'modal-open' : ''" @click.self="closeBudgetSetting()">
+    <div class="modal" :class="$store.app.showBudgetSetting ? 'modal-open' : ''" @click.self="closeBudgetSetting()" data-testid="budget-modal">
       <div class="modal-box w-11/12 max-w-md">
         <h3 class="font-bold text-xl mb-6">設定月度預算</h3>
         <div class="form-control w-full mb-6">
@@ -291,12 +300,13 @@
           </label>
           <input 
             type="number" 
-            x-model="tempBudget"
+            x-model="$store.app.tempBudget"
             placeholder="3000"
             min="0"
             step="100"
             class="input input-bordered w-full focus:input-primary"
             @keydown.enter="saveBudget()"
+            data-testid="budget-input"
           >
         </div>
         <div class="modal-action">
@@ -304,6 +314,7 @@
             @click="saveBudget()"
             class="btn btn-primary"
             data-loading="saveBudget"
+            data-testid="save-budget-btn"
           >
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -313,6 +324,7 @@
           <button 
             @click="closeBudgetSetting()"
             class="btn btn-ghost"
+            data-testid="cancel-budget-btn"
           >
             取消
           </button>
@@ -348,15 +360,16 @@
     </div>
 
     <!-- 新增/編輯訂閱表單 -->
-    <div x-show="isLoggedIn" class="card bg-base-100 shadow-xl mb-8">
+    <div x-data="subscriptionFormManager" x-init="init()" x-show="$store.app.isLoggedIn" class="card bg-base-100 shadow-xl mb-8" data-testid="subscription-form-card">
       <div class="card-body">
 
         <div class="flex justify-between items-center mb-6">
-          <h2 class="card-title text-2xl" x-text="isEditing ? '編輯訂閱服務' : '新增訂閱服務'">新增訂閱服務</h2>
+          <h2 class="card-title text-2xl" x-text="$store.app.isEditing ? '編輯訂閱服務' : '新增訂閱服務'">新增訂閱服務</h2>
           <button 
-            x-show="isEditing" 
+            x-show="$store.app.isEditing" 
             @click="cancelEdit()"
             class="btn btn-ghost btn-sm"
+            data-testid="cancel-edit-btn"
           >
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -364,14 +377,14 @@
             取消編輯
           </button>
         </div>
-        <form @submit.prevent="isEditing ? updateSubscription() : addSubscription()" class="space-y-6">
+        <form @submit.prevent="$store.app.isEditing ? updateSubscription() : addSubscription()" class="space-y-6" data-testid="subscription-form">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- 服務名稱 -->
             <div class="form-control w-full">
               <label class="label">
                 <span class="label-text font-medium">
                   服務名稱
-                  <span x-show="!isLoggedIn" class="ml-1 text-xs opacity-60" title="需要登入才能保存">🔒</span>
+                  <span x-show="!$store.app.isLoggedIn" class="ml-1 text-xs opacity-60" title="需要登入才能保存">🔒</span>
                 </span>
               </label>
               <input 
@@ -379,8 +392,9 @@
                 x-model="newSubscription.name"
                 placeholder="例如：Netflix, Spotify"
                 class="input input-bordered w-full focus:input-primary"
-                :class="!isLoggedIn ? 'bg-base-200/50' : ''"
+                :class="!$store.app.isLoggedIn ? 'bg-base-200/50' : ''"
                 required
+                data-testid="subscription-name-input"
               >
             </div>
             
@@ -389,7 +403,7 @@
               <label class="label">
                 <span class="label-text font-medium">
                   價格
-                  <span x-show="!isLoggedIn" class="ml-1 text-xs opacity-60" title="需要登入才能保存">🔒</span>
+                  <span x-show="!$store.app.isLoggedIn" class="ml-1 text-xs opacity-60" title="需要登入才能保存">🔒</span>
                 </span>
               </label>
               <input 
@@ -398,8 +412,9 @@
                 min="0"
                 step="0.01"
                 class="input input-bordered w-full focus:input-primary"
-                :class="!isLoggedIn ? 'bg-base-200/50' : ''"
+                :class="!$store.app.isLoggedIn ? 'bg-base-200/50' : ''"
                 required
+                data-testid="subscription-price-input"
               >
             </div>
             
@@ -408,14 +423,15 @@
               <label class="label">
                 <span class="label-text font-medium">
                   訂閱週期
-                  <span x-show="!isLoggedIn" class="ml-1 text-xs opacity-60" title="需要登入才能保存">🔒</span>
+                  <span x-show="!$store.app.isLoggedIn" class="ml-1 text-xs opacity-60" title="需要登入才能保存">🔒</span>
                 </span>
               </label>
               <select 
                 x-model="newSubscription.cycle"
                 class="select select-bordered w-full focus:select-primary"
-                :class="!isLoggedIn ? 'bg-base-200/50' : ''"
+                :class="!$store.app.isLoggedIn ? 'bg-base-200/50' : ''"
                 required
+                data-testid="subscription-cycle-select"
               >
                 <option value="monthly">每月</option>
                 <option value="quarterly">每季</option>
@@ -428,14 +444,15 @@
               <label class="label">
                 <span class="label-text font-medium">
                   貨幣
-                  <span x-show="!isLoggedIn" class="ml-1 text-xs opacity-60" title="需要登入才能保存">🔒</span>
+                  <span x-show="!$store.app.isLoggedIn" class="ml-1 text-xs opacity-60" title="需要登入才能保存">🔒</span>
                 </span>
               </label>
               <select 
                 x-model="newSubscription.currency"
                 class="select select-bordered w-full focus:select-primary"
-                :class="!isLoggedIn ? 'bg-base-200/50' : ''"
+                :class="!$store.app.isLoggedIn ? 'bg-base-200/50' : ''"
                 required
+                data-testid="subscription-currency-select"
               >
                 <option value="TWD">🇹🇼 台幣 (TWD)</option>
                 <option value="USD">🇺🇸 美元 (USD)</option>
@@ -447,14 +464,15 @@
               <label class="label">
                 <span class="label-text font-medium">
                   服務分類
-                  <span x-show="!isLoggedIn" class="ml-1 text-xs opacity-60" title="需要登入才能保存">🔒</span>
+                  <span x-show="!$store.app.isLoggedIn" class="ml-1 text-xs opacity-60" title="需要登入才能保存">🔒</span>
                 </span>
               </label>
               <select 
                 x-model="newSubscription.category"
                 class="select select-bordered w-full focus:select-primary"
-                :class="!isLoggedIn ? 'bg-base-200/50' : ''"
+                :class="!$store.app.isLoggedIn ? 'bg-base-200/50' : ''"
                 required
+                data-testid="subscription-category-select"
               >
                 <option value="">請選擇分類</option>
                 <option value="streaming">🎥 影音串流</option>
@@ -473,15 +491,16 @@
               <label class="label">
                 <span class="label-text font-medium">
                   開始日期
-                  <span x-show="!isLoggedIn" class="ml-1 text-xs opacity-60" title="需要登入才能保存">🔒</span>
+                  <span x-show="!$store.app.isLoggedIn" class="ml-1 text-xs opacity-60" title="需要登入才能保存">🔒</span>
                 </span>
               </label>
               <input 
                 type="date" 
                 x-model="newSubscription.startDate"
                 class="input input-bordered w-full focus:input-primary"
-                :class="!isLoggedIn ? 'bg-base-200/50' : ''"
+                :class="!$store.app.isLoggedIn ? 'bg-base-200/50' : ''"
                 required
+                data-testid="subscription-startdate-input"
               >
             </div>
           </div>
@@ -491,18 +510,20 @@
               type="submit"
               class="btn btn-primary flex-1"
               data-loading="addSubscription"
+              data-testid="submit-subscription-btn"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" x-show="!isEditing"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" x-show="isEditing"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" x-show="!$store.app.isEditing"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" x-show="$store.app.isEditing"></path>
               </svg>
-              <span x-text="isEditing ? '更新訂閱' : '新增訂閱'">新增訂閱</span>
+              <span x-text="$store.app.isEditing ? '更新訂閱' : '新增訂閱'">新增訂閱</span>
             </button>
             <button 
-              x-show="isEditing"
+              x-show="$store.app.isEditing"
               type="button"
               @click="cancelEdit()"
               class="btn btn-outline flex-1"
+              data-testid="cancel-form-btn"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -515,7 +536,7 @@
     </div>
 
     <!-- 分類統計圖表 -->
-    <div x-show="subscriptions.length > 0" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="card bg-base-100 shadow-xl mb-8">
+    <div x-data="dashboardManager" x-show="$store.app.subscriptions.length > 0" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="card bg-base-100 shadow-xl mb-8">
       <div class="card-body">
         <h2 class="card-title text-2xl mb-6">
           <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -563,17 +584,17 @@
     </div>
 
     <!-- 訂閱項目列表 -->
-    <div id="subscriptions" class="mb-8">
+    <div x-data="subscriptionListManager" id="subscriptions" class="mb-8" data-testid="subscriptions-section">
       <div class="flex items-center gap-3 mb-6">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
         </svg>
         <h2 class="text-2xl font-bold">我的訂閱服務</h2>
-        <div class="badge badge-primary" x-text="subscriptions.length"></div>
+        <div class="badge badge-primary" x-text="$store.app.subscriptions.length" data-testid="subscriptions-count"></div>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <template x-for="subscription in subscriptions" :key="subscription.id">
-          <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border-l-4" :class="getCategoryColor(subscription.category).replace('border-', 'border-l-')">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="subscriptions-grid">
+        <template x-for="subscription in $store.app.subscriptions" :key="subscription.id">
+          <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border-l-4" :class="getCategoryColor(subscription.category).replace('border-', 'border-l-')" :data-testid="`subscription-card-${subscription.id}`">
             <div class="card-body p-6">
               <!-- 服務名稱和分類 -->
               <div class="flex justify-between items-start mb-4 gap-3">
@@ -616,6 +637,7 @@
                 <button 
                   @click="editSubscription(subscription.id)"
                   class="btn btn-outline btn-primary btn-sm flex-1 sm:flex-none"
+                  :data-testid="`edit-subscription-${subscription.id}`"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -625,6 +647,7 @@
                 <button 
                   @click="deleteSubscription(subscription.id)"
                   class="btn btn-outline btn-error btn-sm flex-1 sm:flex-none"
+                  :data-testid="`delete-subscription-${subscription.id}`"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -638,13 +661,13 @@
       </div>
       
       <!-- 空狀態提示 -->
-      <div x-show="subscriptions.length === 0" class="hero bg-base-200 rounded-3xl">
+      <div x-show="$store.app.subscriptions.length === 0" class="hero bg-base-200 rounded-3xl" data-testid="empty-subscriptions">
         <div class="hero-content text-center py-16">
           <div class="max-w-md">
             <div class="text-6xl mb-6">📱</div>
             <h3 class="text-2xl font-bold mb-4">還沒有訂閱服務</h3>
             <p class="mb-6 opacity-70">新增你的第一個訂閱服務開始追蹤支出吧！</p>
-            <button class="btn btn-primary" @click="document.querySelector('form input').focus()">
+            <button class="btn btn-primary" @click="scrollToAddForm()" data-testid="add-first-subscription-btn">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
               </svg>
@@ -654,6 +677,7 @@
         </div>
       </div>
       </div>
+    </div>
     </div>
   </div>
 </body>
